@@ -1,0 +1,460 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_Swig|Win32">
+      <Configuration>Release_Swig</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_Swig|x64">
+      <Configuration>Release_Swig</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{43011113-B968-462C-B99A-539E3E98BC15}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>TerrainRL</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <ProjectName>DeepMimicCore</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Swig|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Swig|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_Swig|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_Swig|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Swig|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Swig|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>_$(ProjectName)</TargetName>
+    <TargetExt>.pyd</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\..\..\c++_stuff\library\Bullet3\src;..\..\..\c++_stuff\library\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\c++_stuff\library\lib;..\..\..\c++_stuff\library\Bullet3\build3\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\..\..\c++_stuff\library\Bullet3\src;..\..\..\c++_stuff\library\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\c++_stuff\library\Bullet3\build3\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;BulletDynamics_Debug.lib;BulletCollision_Debug.lib;LinearMath_Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\..\..\c++_stuff\library\Bullet3\src;..\..\..\c++_stuff\library\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Swig|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\..\..\c++_stuff\library\Bullet3\src;..\..\..\c++_stuff\library\;$(PYTHON_INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\..\..\c++_stuff\library\Bullet3\src;..\..\..\c++_stuff\library\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\c++_stuff\library\Bullet3\build3\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Swig|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir);..\..\..\c++_stuff\library\Bullet3\src;..\..\..\c++_stuff\library\;$(PYTHON_INCLUDE);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\c++_stuff\library\Bullet3\build3\lib\Release;$(PYTHON_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(ProjectDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="anim\Character.cpp" />
+    <ClCompile Include="anim\KinCharacter.cpp" />
+    <ClCompile Include="anim\KinTree.cpp" />
+    <ClCompile Include="anim\Motion.cpp" />
+    <ClCompile Include="anim\Shape.cpp" />
+    <ClCompile Include="DeepMimicCore_wrap.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Swig|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="render\Camera.cpp" />
+    <ClCompile Include="render\DrawCharacter.cpp" />
+    <ClCompile Include="render\DrawGround.cpp" />
+    <ClCompile Include="render\DrawKinTree.cpp" />
+    <ClCompile Include="render\DrawMesh.cpp" />
+    <ClCompile Include="render\DrawObj.cpp" />
+    <ClCompile Include="render\DrawPerturb.cpp" />
+    <ClCompile Include="render\DrawSimCharacter.cpp" />
+    <ClCompile Include="render\DrawUtil.cpp" />
+    <ClCompile Include="render\DrawWorld.cpp" />
+    <ClCompile Include="render\GraphUtil.cpp" />
+    <ClCompile Include="render\IBuffer.cpp" />
+    <ClCompile Include="render\lodepng\lodepng.cpp" />
+    <ClCompile Include="render\lodepng\lodepng_util.cpp" />
+    <ClCompile Include="render\MatrixStack.cpp" />
+    <ClCompile Include="render\MeshUtil.cpp" />
+    <ClCompile Include="render\Shader.cpp" />
+    <ClCompile Include="render\ShadowMap.cpp" />
+    <ClCompile Include="render\TextureDesc.cpp" />
+    <ClCompile Include="render\TextureUtil.cpp" />
+    <ClCompile Include="render\VertexBuffer.cpp" />
+    <ClCompile Include="scenes\DrawRLScene.cpp" />
+    <ClCompile Include="scenes\DrawSceneImitate.cpp" />
+    <ClCompile Include="scenes\DrawSceneKinChar.cpp" />
+    <ClCompile Include="scenes\DrawSceneSimChar.cpp" />
+    <ClCompile Include="scenes\RLScene.cpp" />
+    <ClCompile Include="scenes\RLSceneSimChar.cpp" />
+    <ClCompile Include="scenes\SceneImitate.cpp" />
+    <ClCompile Include="scenes\SceneKinChar.cpp" />
+    <ClCompile Include="scenes\Scene.cpp" />
+    <ClCompile Include="scenes\DrawScene.cpp" />
+    <ClCompile Include="scenes\SceneBuilder.cpp" />
+    <ClCompile Include="scenes\SceneSimChar.cpp" />
+    <ClCompile Include="sim\AgentRegistry.cpp" />
+    <ClCompile Include="sim\CharController.cpp" />
+    <ClCompile Include="sim\ExpPDController.cpp" />
+    <ClCompile Include="sim\ObjTracer.cpp" />
+    <ClCompile Include="sim\ContactManager.cpp" />
+    <ClCompile Include="sim\Controller.cpp" />
+    <ClCompile Include="sim\CtController.cpp" />
+    <ClCompile Include="sim\CtCtrlUtil.cpp" />
+    <ClCompile Include="sim\CtPDController.cpp" />
+    <ClCompile Include="sim\CtVelController.cpp" />
+    <ClCompile Include="sim\Ground.cpp" />
+    <ClCompile Include="sim\GroundBuilder.cpp" />
+    <ClCompile Include="sim\GroundPlane.cpp" />
+    <ClCompile Include="sim\ImpPDController.cpp" />
+    <ClCompile Include="sim\MultiBody.cpp" />
+    <ClCompile Include="sim\PerturbManager.cpp" />
+    <ClCompile Include="sim\SimBodyJoint.cpp" />
+    <ClCompile Include="sim\PDController.cpp" />
+    <ClCompile Include="sim\Perturb.cpp" />
+    <ClCompile Include="sim\RBDModel.cpp" />
+    <ClCompile Include="sim\RBDUtil.cpp" />
+    <ClCompile Include="sim\SimBox.cpp" />
+    <ClCompile Include="sim\SimCapsule.cpp" />
+    <ClCompile Include="sim\SimCharacter.cpp" />
+    <ClCompile Include="sim\SimCharBuilder.cpp" />
+    <ClCompile Include="sim\SimCharGeneral.cpp" />
+    <ClCompile Include="sim\SimBodyLink.cpp" />
+    <ClCompile Include="sim\SimJoint.cpp" />
+    <ClCompile Include="sim\SimCylinder.cpp" />
+    <ClCompile Include="sim\SimObj.cpp" />
+    <ClCompile Include="sim\SimPlane.cpp" />
+    <ClCompile Include="sim\SimRigidBody.cpp" />
+    <ClCompile Include="sim\SimSphere.cpp" />
+    <ClCompile Include="sim\SpAlg.cpp" />
+    <ClCompile Include="sim\DeepMimicCharController.cpp" />
+    <ClCompile Include="sim\CtrlBuilder.cpp" />
+    <ClCompile Include="sim\World.cpp" />
+    <ClCompile Include="DeepMimicCore.cpp" />
+    <ClCompile Include="util\Annealer.cpp" />
+    <ClCompile Include="util\ArgParser.cpp" />
+    <ClCompile Include="util\FileUtil.cpp" />
+    <ClCompile Include="util\IndexManager.cpp" />
+    <ClCompile Include="util\JsonUtil.cpp" />
+    <ClCompile Include="util\json\json_reader.cpp" />
+    <ClCompile Include="util\json\json_value.cpp" />
+    <ClCompile Include="util\json\json_writer.cpp" />
+    <ClCompile Include="util\MathUtil.cpp" />
+    <ClCompile Include="util\Rand.cpp" />
+    <ClCompile Include="util\Timer.cpp" />
+    <ClCompile Include="util\Trajectory.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="anim\Character.h" />
+    <ClInclude Include="anim\KinCharacter.h" />
+    <ClInclude Include="anim\KinTree.h" />
+    <ClInclude Include="anim\Motion.h" />
+    <ClInclude Include="anim\Shape.h" />
+    <ClInclude Include="render\Camera.h" />
+    <ClInclude Include="render\DrawCharacter.h" />
+    <ClInclude Include="render\DrawGround.h" />
+    <ClInclude Include="render\DrawKinTree.h" />
+    <ClInclude Include="render\DrawMesh.h" />
+    <ClInclude Include="render\DrawObj.h" />
+    <ClInclude Include="render\DrawPerturb.h" />
+    <ClInclude Include="render\DrawSimCharacter.h" />
+    <ClInclude Include="render\DrawUtil.h" />
+    <ClInclude Include="render\DrawWorld.h" />
+    <ClInclude Include="render\GraphUtil.h" />
+    <ClInclude Include="render\IBuffer.h" />
+    <ClInclude Include="render\lodepng\lodepng.h" />
+    <ClInclude Include="render\lodepng\lodepng_util.h" />
+    <ClInclude Include="render\MatrixStack.h" />
+    <ClInclude Include="render\MeshUtil.h" />
+    <ClInclude Include="render\ObjLoader.h" />
+    <ClInclude Include="render\RenderState.h" />
+    <ClInclude Include="render\Shader.h" />
+    <ClInclude Include="render\ShadowMap.h" />
+    <ClInclude Include="render\TextureDesc.h" />
+    <ClInclude Include="render\TextureUtil.h" />
+    <ClInclude Include="render\VertexBuffer.h" />
+    <ClInclude Include="scenes\DrawRLScene.h" />
+    <ClInclude Include="scenes\DrawSceneImitate.h" />
+    <ClInclude Include="scenes\DrawSceneKinChar.h" />
+    <ClInclude Include="scenes\DrawSceneSimChar.h" />
+    <ClInclude Include="scenes\RLScene.h" />
+    <ClInclude Include="scenes\RLSceneSimChar.h" />
+    <ClInclude Include="scenes\SceneImitate.h" />
+    <ClInclude Include="scenes\SceneKinChar.h" />
+    <ClInclude Include="scenes\Scene.h" />
+    <ClInclude Include="scenes\DrawScene.h" />
+    <ClInclude Include="scenes\SceneBuilder.h" />
+    <ClInclude Include="scenes\SceneSimChar.h" />
+    <ClInclude Include="sim\ActionSpace.h" />
+    <ClInclude Include="sim\AgentRegistry.h" />
+    <ClInclude Include="sim\CharController.h" />
+    <ClInclude Include="sim\ExpPDController.h" />
+    <ClInclude Include="sim\ObjTracer.h" />
+    <ClInclude Include="sim\ContactManager.h" />
+    <ClInclude Include="sim\Controller.h" />
+    <ClInclude Include="sim\CtController.h" />
+    <ClInclude Include="sim\CtCtrlUtil.h" />
+    <ClInclude Include="sim\CtPDController.h" />
+    <ClInclude Include="sim\CtVelController.h" />
+    <ClInclude Include="sim\Ground.h" />
+    <ClInclude Include="sim\GroundBuilder.h" />
+    <ClInclude Include="sim\GroundPlane.h" />
+    <ClInclude Include="sim\ImpPDController.h" />
+    <ClInclude Include="sim\MultiBody.h" />
+    <ClInclude Include="sim\PerturbManager.h" />
+    <ClInclude Include="sim\SimBodyJoint.h" />
+    <ClInclude Include="sim\PDController.h" />
+    <ClInclude Include="sim\Perturb.h" />
+    <ClInclude Include="sim\RBDModel.h" />
+    <ClInclude Include="sim\RBDUtil.h" />
+    <ClInclude Include="sim\SimBox.h" />
+    <ClInclude Include="sim\SimCapsule.h" />
+    <ClInclude Include="sim\SimCharacter.h" />
+    <ClInclude Include="sim\SimCharBuilder.h" />
+    <ClInclude Include="sim\SimCharGeneral.h" />
+    <ClInclude Include="sim\SimBodyLink.h" />
+    <ClInclude Include="sim\SimJoint.h" />
+    <ClInclude Include="sim\SimCylinder.h" />
+    <ClInclude Include="sim\SimObj.h" />
+    <ClInclude Include="sim\SimPlane.h" />
+    <ClInclude Include="sim\SimRigidBody.h" />
+    <ClInclude Include="sim\SimSphere.h" />
+    <ClInclude Include="sim\SpAlg.h" />
+    <ClInclude Include="sim\DeepMimicCharController.h" />
+    <ClInclude Include="sim\CtrlBuilder.h" />
+    <ClInclude Include="sim\World.h" />
+    <ClInclude Include="DeepMimicCore.h" />
+    <ClInclude Include="util\Annealer.h" />
+    <ClInclude Include="util\ArgParser.h" />
+    <ClInclude Include="util\CircularBuffer.h" />
+    <ClInclude Include="util\FileUtil.h" />
+    <ClInclude Include="util\IndexBuffer.h" />
+    <ClInclude Include="util\IndexManager.h" />
+    <ClInclude Include="util\JsonUtil.h" />
+    <ClInclude Include="util\json\allocator.h" />
+    <ClInclude Include="util\json\assertions.h" />
+    <ClInclude Include="util\json\autolink.h" />
+    <ClInclude Include="util\json\config.h" />
+    <ClInclude Include="util\json\features.h" />
+    <ClInclude Include="util\json\forwards.h" />
+    <ClInclude Include="util\json\json.h" />
+    <ClInclude Include="util\json\json_tool.h" />
+    <ClInclude Include="util\json\reader.h" />
+    <ClInclude Include="util\json\value.h" />
+    <ClInclude Include="util\json\version.h" />
+    <ClInclude Include="util\json\writer.h" />
+    <ClInclude Include="util\MathUtil.h" />
+    <ClInclude Include="util\Rand.h" />
+    <ClInclude Include="util\Timer.h" />
+    <ClInclude Include="util\Trajectory.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="DeepMimicCore.i">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Swig|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Swig|Win32'">echo PYTHON_INCLUDE: %PYTHON_INCLUDE%
+echo PYTHON_LIB: %PYTHON_LIB%
+echo SWIG_DIR: %SWIG_DIR%
+echo on
+$(SWIG_DIR)\swig.exe -c++ -python -o $(ProjectName)_wrap.cpp  $(ProjectName).i</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_Swig|Win32'">$(ProjectName)_wrap.cxx;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_Swig|x64'">echo PYTHON_INCLUDE: %PYTHON_INCLUDE%
+echo PYTHON_LIB: %PYTHON_LIB%
+echo SWIG_DIR: %SWIG_DIR%
+echo on
+$(SWIG_DIR)\swig.exe -c++ -python -o $(ProjectName)_wrap.cpp  $(ProjectName).i</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release_Swig|x64'">$(ProjectName)_wrap.cxx;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

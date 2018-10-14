@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>66068768-7ff3-4ca4-9d18-de497b6e2538</ProjectGuid>
+    <ProjectHome>
+    </ProjectHome>
+    <StartupFile>DeepMimic.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>DeepMimic</Name>
+    <RootNamespace>pyTerrainRL</RootNamespace>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>--arg_file args/test_args.txt</CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <InterpreterId>Global|PythonCore|3.5</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="DeepMimic.py" />
+    <Compile Include="DeepMimic_Optimizer.py" />
+    <Compile Include="env\action_space.py" />
+    <Compile Include="env\deepmimic_env.py" />
+    <Compile Include="env\env.py" />
+    <Compile Include="learning\exp_params.py" />
+    <Compile Include="learning\nets\fc_2layers_1024units.py" />
+    <Compile Include="learning\nets\net_builder.py" />
+    <Compile Include="learning\normalizer.py" />
+    <Compile Include="learning\pg_agent.py" />
+    <Compile Include="learning\path.py" />
+    <Compile Include="learning\ppo_agent.py" />
+    <Compile Include="learning\replay_buffer.py" />
+    <Compile Include="learning\rl_agent.py" />
+    <Compile Include="learning\rl_util.py" />
+    <Compile Include="learning\rl_world.py" />
+    <Compile Include="learning\solvers\mpi_solver.py" />
+    <Compile Include="learning\solvers\solver.py" />
+    <Compile Include="learning\tf_agent.py" />
+    <Compile Include="learning\tf_normalizer.py" />
+    <Compile Include="learning\tf_util.py" />
+    <Compile Include="learning\agent_builder.py" />
+    <Compile Include="mpi_run.py" />
+    <Compile Include="util\arg_parser.py" />
+    <Compile Include="util\logger.py" />
+    <Compile Include="util\math_util.py" />
+    <Compile Include="util\mpi_util.py" />
+    <Compile Include="util\util.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="env\" />
+    <Folder Include="learning\" />
+    <Folder Include="learning\nets\" />
+    <Folder Include="learning\solvers\" />
+    <Folder Include="util\" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.5" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

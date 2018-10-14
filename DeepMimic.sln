@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "DeepMimic", "DeepMimic.pyproj", "{66068768-7FF3-4CA4-9D18-DE497B6E2538}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{66068768-7FF3-4CA4-9D18-DE497B6E2538}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66068768-7FF3-4CA4-9D18-DE497B6E2538}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {027B92DB-2273-449E-9225-DB1A37CD696B}
+	EndGlobalSection
+EndGlobal

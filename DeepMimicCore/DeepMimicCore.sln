@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DeepMimicCore", "DeepMimicCore.vcxproj", "{43011113-B968-462C-B99A-539E3E98BC15}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release_Swig|x64 = Release_Swig|x64
+		Release_Swig|x86 = Release_Swig|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{43011113-B968-462C-B99A-539E3E98BC15}.Debug|x64.ActiveCfg = Debug|x64
+		{43011113-B968-462C-B99A-539E3E98BC15}.Debug|x64.Build.0 = Debug|x64
+		{43011113-B968-462C-B99A-539E3E98BC15}.Debug|x86.ActiveCfg = Debug|Win32
+		{43011113-B968-462C-B99A-539E3E98BC15}.Debug|x86.Build.0 = Debug|Win32
+		{43011113-B968-462C-B99A-539E3E98BC15}.Release_Swig|x64.ActiveCfg = Release_Swig|x64
+		{43011113-B968-462C-B99A-539E3E98BC15}.Release_Swig|x64.Build.0 = Release_Swig|x64
+		{43011113-B968-462C-B99A-539E3E98BC15}.Release_Swig|x86.ActiveCfg = Release_Swig|Win32
+		{43011113-B968-462C-B99A-539E3E98BC15}.Release_Swig|x86.Build.0 = Release_Swig|Win32
+		{43011113-B968-462C-B99A-539E3E98BC15}.Release|x64.ActiveCfg = Release|x64
+		{43011113-B968-462C-B99A-539E3E98BC15}.Release|x64.Build.0 = Release|x64
+		{43011113-B968-462C-B99A-539E3E98BC15}.Release|x86.ActiveCfg = Release|Win32
+		{43011113-B968-462C-B99A-539E3E98BC15}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5AC5F7F0-8808-49A6-808F-50891A27D4E8}
+	EndGlobalSection
+EndGlobal
