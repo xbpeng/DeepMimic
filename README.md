@@ -34,7 +34,7 @@ To install the python dependencies, run
 ```
 pip install -r requirements.txt
 ```
-You will need to first install MPI before installing the python packages, 
+You will need to install MPI before installing the python packages, 
 else the MPI4Py installation will fail.
 
 ### Windows
