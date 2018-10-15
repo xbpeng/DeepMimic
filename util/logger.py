@@ -50,7 +50,7 @@ class Logger:
         output_path = filename or "output/log_%i.txt"%int(time.time())
 
         out_dir = os.path.dirname(output_path)
-        if not os.path.exists(out_dir) and self._is_root():
+        if not os.path.exists(out_dir) and MPIUtil.is_root_proc():
             os.makedirs(out_dir)
 
         if (MPIUtil.is_root_proc()):

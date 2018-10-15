@@ -458,14 +458,14 @@ class RLAgent(ABC):
         if (self._enable_output() and self.iter % self.output_iters == 0):
             output_path = self._get_output_path()
             output_dir = os.path.dirname(output_path)
-            if not os.path.exists(output_dir) and self._is_root():
+            if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
             self.save_model(output_path)
 
         if (self._enable_int_output() and self.iter % self.int_output_iters == 0):
             int_output_path = self._get_int_output_path()
             int_output_dir = os.path.dirname(int_output_path)
-            if not os.path.exists(int_output_dir) and self._is_root():
+            if not os.path.exists(int_output_dir):
                 os.makedirs(int_output_dir)
             self.save_model(int_output_path)
 
