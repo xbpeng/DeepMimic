@@ -34,8 +34,7 @@ To install the python dependencies, run
 ```
 pip install -r requirements.txt
 ```
-You will need to install MPI before installing the python packages, 
-else the MPI4Py installation will fail.
+Note that MPI must be installed before MPI4Py.
 
 ### Windows
 The wrapper is built using `DeepMimicCore.sln`.
