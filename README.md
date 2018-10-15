@@ -30,10 +30,12 @@ Misc:
 
 ## Build
 The simulated environments are written in C++, and the python wrapper is built using SWIG.
-First install the python dependencies with
+To install the python dependencies, run
 ```
 pip install -r requirements.txt
 ```
+You will need to first install MPI before installing the python packages, 
+else the MPI4Py installation will fail.
 
 ### Windows
 The wrapper is built using `DeepMimicCore.sln`.
