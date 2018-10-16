@@ -56,8 +56,8 @@ generate `DeepMimicCore.py` in `DeepMimicCore/`.
 
 ### Linux
 1. Modify the `Makefile` in `DeepMimicCore/` by specifying the following,
-	- `EIGEN_DIR`: Eigen include directory
-	- `BULLET_INC_DIR`: Bullet source directory
+	- `EIGEN_DIR`: [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page) include directory
+	- `BULLET_INC_DIR`: [Bullet3](https://github.com/bulletphysics/bullet3) source directory
 	- `PYTHON_INC`: python include directory
 	- `PYTHON_LIB`: python lib directory
 
