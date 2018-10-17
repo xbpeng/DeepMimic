@@ -353,11 +353,13 @@ void cSceneImitate::SyncCharacters()
 	const auto& kin_char = GetKinChar();
 	const Eigen::VectorXd& pose = kin_char->GetPose();
 	const Eigen::VectorXd& vel = kin_char->GetVel();
-	
-	const auto& sim_char = GetCharacter();
+int numChars = GetNumChars(); 
+for(int id = 0; id < numChars; ++id){
+if(id > 0) ResetKinChar();
+	const auto& sim_char = GetCharacter(id);
 	sim_char->SetPose(pose);
 	sim_char->SetVel(vel);
-
+if(id>0)sim_char->SetPos(mCharParams[id].mInitPos);
 	const auto& ctrl = sim_char->GetController();
 	auto ct_ctrl = dynamic_cast<cCtController*>(ctrl.get());
 	if (ct_ctrl != nullptr)
@@ -365,6 +367,7 @@ void cSceneImitate::SyncCharacters()
 		double kin_time = GetKinTime();
 		ct_ctrl->SetInitTime(kin_time);
 	}
+}
 }
 
 bool cSceneImitate::EnableSyncChar() const
