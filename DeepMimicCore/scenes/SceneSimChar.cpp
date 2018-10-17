@@ -315,7 +315,7 @@ bool cSceneSimChar::BuildCharacters()
 		cSimCharBuilder::eCharType char_type = cSimCharBuilder::cCharGeneral;
 		if (mCharTypes.size() > i)
 		{
-			char_type = mCharTypes[0];
+			char_type = mCharTypes[i];
 		}
 		cSimCharBuilder::CreateCharacter(char_type, curr_char);
 
