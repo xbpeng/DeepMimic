@@ -359,7 +359,7 @@ if(id > 0) ResetKinChar();
 	const auto& sim_char = GetCharacter(id);
 	sim_char->SetPose(pose);
 	sim_char->SetVel(vel);
-
+if(id>0)sim_char->SetPos(mCharParams[i].mInitPos);
 	const auto& ctrl = sim_char->GetController();
 	auto ct_ctrl = dynamic_cast<cCtController*>(ctrl.get());
 	if (ct_ctrl != nullptr)
