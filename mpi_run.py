@@ -16,7 +16,7 @@ def main():
     cmd = 'mpiexec -n {:d} python DeepMimic_Optimizer.py '.format(num_workers)
     cmd += ' '.join(args)
     Logger.print('cmd: ' + cmd)
-    subprocess.call(cmd)
+    subprocess.call(cmd, shell=True)
     return
 
 if __name__ == '__main__':
