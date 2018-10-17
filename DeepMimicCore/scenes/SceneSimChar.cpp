@@ -78,9 +78,9 @@ void cSceneSimChar::ParseArgs(const std::shared_ptr<cArgParser>& parser)
 	succ &= ParseCharTypes(parser, mCharTypes);
 	succ &= ParseCharParams(parser, mCharParams);
 	succ &= ParseCharCtrlParams(parser, mCtrlParams);
-	if (mCtrlParams.size() != mCtrlParams.size())
+	if (mCharParams.size() != mCtrlParams.size())
 	{
-		printf("Char and ctrl file mismatch, %zi vs %zi\n", mCtrlParams.size(), mCtrlParams.size());
+		printf("Char and ctrl file mismatch, %zi vs %zi\n", mCharParams.size(), mCtrlParams.size());
 		assert(false);
 	}
 
@@ -315,7 +315,7 @@ bool cSceneSimChar::BuildCharacters()
 		cSimCharBuilder::eCharType char_type = cSimCharBuilder::cCharGeneral;
 		if (mCharTypes.size() > i)
 		{
-			char_type = mCharTypes[0];
+			char_type = mCharTypes[i];
 		}
 		cSimCharBuilder::CreateCharacter(char_type, curr_char);
 
