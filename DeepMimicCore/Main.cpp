@@ -278,11 +278,6 @@ void Keyboard(unsigned char key, int x, int y)
 	gCore->Keyboard(key, x, y);
 
 	switch (key) {
-		// Quit.
-#ifndef _LINUX_
-	// case CTRL_CLOSE_EVENT:
-	// case CTRL_C_EVENT:
-#endif
 	case 27: // escape
 		Shutdown();
 		break;

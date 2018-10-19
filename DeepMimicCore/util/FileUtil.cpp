@@ -2,10 +2,8 @@
 #include <assert.h>
 #include <cstdarg>
 #include <memory>
-#ifdef _LINUX_
 #include <iostream>
 #include <string.h>
-#endif
 
 FILE* cFileUtil::OpenFile(const std::string& file_name, const char* mode)
 {
