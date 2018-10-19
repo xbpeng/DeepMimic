@@ -6,7 +6,7 @@ EIGEN_DIR = ../../libraries/eigen
 BULLET_INC_DIR = ../../libraries/bullet3/src
 
 PYTHON_INC = /usr/include/python3.6m
-PYTHON_LIB = -lpython3.6m
+PYTHON_LIB = /usr/lib/ -lpython3.6m
 
 INC = -I./ \
 	-I$(EIGEN_DIR) \
