@@ -34,7 +34,7 @@ To install the python dependencies, run
 ```
 pip install -r requirements.txt
 ```
-Note that MPI must be installed before MPI4Py. When building Bullet be sure to disable double precision with the build flag `USE_DOUBLE_PRECISION=OFF`.
+Note that MPI must be installed before MPI4Py. When building Bullet, be sure to disable double precision with the build flag `USE_DOUBLE_PRECISION=OFF`.
 
 ### Windows
 The wrapper is built using `DeepMimicCore.sln`.
