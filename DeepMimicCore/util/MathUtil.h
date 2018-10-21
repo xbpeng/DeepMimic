@@ -4,6 +4,7 @@
 
 #include "Eigen/Dense"
 #include "Eigen/StdVector"
+#include "Eigen/Geometry"
 #include "Rand.h"
 
 const int gInvalidIdx = -1;
