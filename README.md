@@ -18,6 +18,7 @@ C++:
 - glew (http://glew.sourceforge.net/)
 
 Python:
+- Python 3
 - PyOpenGL (http://pyopengl.sourceforge.net/)
 - Tensorflow (https://www.tensorflow.org/)
 - MPI4Py (https://mpi4py.readthedocs.io/en/stable/install.html)
