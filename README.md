@@ -94,7 +94,7 @@ For example,
 python mpi_run.py --arg_file args/train_humanoid3d_spinkick_args.txt --num_workers 4
 ```
 
-will train a policy to perform a spinkick using 4 workers. As training proresses, it will regularly
+will train a policy to perform a spinkick using 4 workers. As training progresses, it will regularly
 print out statistics and log them to `output/` along with a `.ckpt` of the latest policy.
 It typically takes about 60 millions samples to train one policy, which can take a day
 when training with 16 workers. 16 workers is likely the max number of workers that the
