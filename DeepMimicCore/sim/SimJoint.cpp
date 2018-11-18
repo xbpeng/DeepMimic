@@ -138,7 +138,7 @@ void cSimJoint::AddTau(const Eigen::VectorXd& tau)
 	case cKinTree::eJointTypePlanar:
 		mTotalTau[3] += tau[0];
 		mTotalTau[4] += tau[1];
-		mTotalTau[2] += tau[2];
+		mTotalTau[5] += tau[2];
 		break;
 	case cKinTree::eJointTypePrismatic:
 		mTotalTau[3] += tau[0];
