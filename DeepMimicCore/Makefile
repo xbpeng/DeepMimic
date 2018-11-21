@@ -12,7 +12,7 @@ INC = -I./ \
 	-I$(EIGEN_DIR) \
 	-I$(BULLET_INC_DIR)
 
-LIBS = -lGLEW -lGL -lGLU -lglut -lBulletDynamics -lBulletCollision -lLinearMath
+LIBS = -lGLEW -lGL -lGLU -lglut -lBulletDynamics -lBulletCollision -lLinearMath -lm -lstdc++
 
 CC = clang++
 CFLAGS = -std=c++11 -O3 -Wall -fPIC 
