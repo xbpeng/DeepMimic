@@ -1491,7 +1491,7 @@ void cKinTree::CalcVel(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& 
 
 	tQuaternion root_rot0 = GetRootRot(joint_mat, pose0);
 	tQuaternion root_rot1 = GetRootRot(joint_mat, pose1);
-	tVector root_rot_vel = cMathUtil::CalcQuaternionVelRel(root_rot0, root_rot1, dt);
+	tVector root_rot_vel = cMathUtil::CalcQuaternionVel(root_rot0, root_rot1, dt);
 
 	cKinTree::SetRootVel(joint_mat, root_vel, out_vel);
 	cKinTree::SetRootAngVel(joint_mat, root_rot_vel, out_vel);
