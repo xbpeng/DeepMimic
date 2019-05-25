@@ -10,31 +10,56 @@ Project page: https://xbpeng.github.io/projects/DeepMimic/index.html
 ![Skills](images/teaser.png)
 
 ## Dependencies
-C++:
-- Bullet 2.87 (https://github.com/bulletphysics/bullet3/releases)
-- Eigen (http://www.eigen.tuxfamily.org/index.php?title=Main_Page)
-- OpenGL >= 3.2
-- freeglut (http://freeglut.sourceforge.net/)
-- glew (http://glew.sourceforge.net/)
 
-Python:
-- Python 3
-- PyOpenGL (http://pyopengl.sourceforge.net/)
-- Tensorflow (https://www.tensorflow.org/)
-- MPI4Py (https://mpi4py.readthedocs.io/en/stable/install.html)
+sudo apt install libgl1-mesa-dev libx11-dev libxrandr-dev libxi-dev
+sudo apt install mesa-utils
+sudo apt install clang
+
+C++:
+
+- Bullet 2.88 (https://github.com/bulletphysics/bullet3/releases)
+  Download Bullet 2.88 from the above link and install using the following commands.
+	./build_cmake_pybullet_double.sh
+	cd build_cmake
+	sudo make install
+
+- Eigen (http://www.eigen.tuxfamily.org/index.php?title=Main_Page) (Version : 3.3.7)
+	mkdir build
+	cmake ..
+	sudo make install
+
+- OpenGL >= 3.2
+- freeglut (http://freeglut.sourceforge.net/) ( Version : 3.0.0 )
+	cmake .
+	make
+	sudo make install
+  
+- glew (http://glew.sourceforge.net/) ( Version : 2.1.0 )
+	make
+	sudo make install
+	make clean
 
 Misc:
-- SWIG (http://www.swig.org/)
+
+- SWIG (http://www.swig.org/) ( Version : 4.0.0 )
+	./configure --without-pcre
+	make
+	sudo make install
+
 - MPI 
 	- Windows: https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi
 	- Linux: `sudo apt install libopenmpi-dev`
 
+
+Python:
+
+- Python 3
+- PyOpenGL (http://pyopengl.sourceforge.net/) ( pip install PyOpenGL PyOpenGL_accelerate )
+- Tensorflow (https://www.tensorflow.org/) ( pip install tensorflow ) ( Vesrion : 1.13.1 )
+- MPI4Py (https://mpi4py.readthedocs.io/en/stable/install.html) ( pip install mpi4py )
+
 ## Build
 The simulated environments are written in C++, and the python wrapper is built using SWIG.
-To install the python dependencies, run
-```
-pip install -r requirements.txt
-```
 Note that MPI must be installed before MPI4Py. When building Bullet, be sure to disable double precision with the build flag `USE_DOUBLE_PRECISION=OFF`.
 
 ### Windows
@@ -156,3 +181,14 @@ Positions are specified in meters, 3D rotations for spherical joints are specifi
 and 1D rotations for revolute joints (e.g. knees and elbows) are represented with a scalar rotation in radians. The root
 positions and rotations are in world coordinates, but all other joint rotations are in the joint's local coordinates.
 To use your own motion clip, convert it to a similar style JSON file.
+
+## Possible Issues and Solutions
+
+ImportError: libGLEW.so.2.1: cannot open shared object file: No such file or directory
+search for libGLEW.so.2.1 and use the following command accordingly
+ln /path/to/libGLEW.so.2.1 /usr/lib/x86----/libGLEW.so.2.1
+ln /path/to/libGLEW.so.2.1.0 /usr/lib/x86----/libGLEW.so.2.1.0
+
+ImportError: libBulletDynamics.so.2.88: cannot open shared object file: No such file or directory
+export LD_LIBRARY_PATH=/usr/local/lib/ ( can be temporary when run in terminal) 
+(libBullet file are present in that path - gets installed in that path after the command sudo make install while installing Bullet)
