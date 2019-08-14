@@ -11,40 +11,58 @@ Project page: https://xbpeng.github.io/projects/DeepMimic/index.html
 
 ## Dependencies
 
-sudo apt install libgl1-mesa-dev libx11-dev libxrandr-dev libxi-dev
-sudo apt install mesa-utils
-sudo apt install clang
+``sudo apt install libgl1-mesa-dev libx11-dev libxrandr-dev libxi-dev``
+
+``sudo apt install mesa-utils``
+
+``sudo apt install clang``
 
 C++:
 
 - Bullet 2.88 (https://github.com/bulletphysics/bullet3/releases)
+
   Download Bullet 2.88 from the above link and install using the following commands.
-	./build_cmake_pybullet_double.sh
-	cd build_cmake
-	sudo make install
+  
+	``./build_cmake_pybullet_double.sh``
+	
+	``cd build_cmake``
+	
+	``sudo make install``
 
 - Eigen (http://www.eigen.tuxfamily.org/index.php?title=Main_Page) (Version : 3.3.7)
-	mkdir build
-	cmake ..
-	sudo make install
+
+	``mkdir build``
+	
+	``cmake ..``
+	
+	``sudo make install``
 
 - OpenGL >= 3.2
 - freeglut (http://freeglut.sourceforge.net/) ( Version : 3.0.0 )
-	cmake .
-	make
-	sudo make install
+
+	``cmake .``
+	
+	``make``
+	
+	``sudo make install``
   
 - glew (http://glew.sourceforge.net/) ( Version : 2.1.0 )
-	make
-	sudo make install
-	make clean
+
+	``make``
+	
+	``sudo make install``
+	
+	``make clean``
 
 Misc:
 
 - SWIG (http://www.swig.org/) ( Version : 4.0.0 )
-	./configure --without-pcre
-	make
-	sudo make install
+
+	``./configure --without-pcre``
+	
+	``make``
+	
+	``sudo make install``
 
 - MPI 
 	- Windows: https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi
@@ -54,9 +72,16 @@ Misc:
 Python:
 
 - Python 3
-- PyOpenGL (http://pyopengl.sourceforge.net/) ( pip install PyOpenGL PyOpenGL_accelerate )
-- Tensorflow (https://www.tensorflow.org/) ( pip install tensorflow ) ( Vesrion : 1.13.1 )
-- MPI4Py (https://mpi4py.readthedocs.io/en/stable/install.html) ( pip install mpi4py )
+- PyOpenGL (http://pyopengl.sourceforge.net/) 
+
+``pip install PyOpenGL PyOpenGL_accelerate``
+
+- Tensorflow (https://www.tensorflow.org/) ( Vesrion : 1.13.1 )
+
+``pip install tensorflow`` 
+- MPI4Py (https://mpi4py.readthedocs.io/en/stable/install.html)
+
+``pip install mpi4py``
 
 ## Build
 The simulated environments are written in C++, and the python wrapper is built using SWIG.
