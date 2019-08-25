@@ -678,7 +678,7 @@ cSpAlg::tSpMat cRBDUtil::BuildMomentInertiaCapsule(const Eigen::MatrixXd& body_d
 	double hsm = hs_vol * density;
 
 	double x = cm*(0.25 * r * r + (1.0 / 12.0) * h * h) +
-				2 * hsm *(0.4 * r * r + (3.0 / 8) * r * h + 0.5 * h * h);
+				2 * hsm *(0.4 * r * r + (3.0 / 8) * r * h + 0.25 * h * h);
 	double y = (0.5 * cm + 0.8 * hsm) * r * r;
 	double z = x;
 
