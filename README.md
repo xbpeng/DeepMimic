@@ -17,6 +17,8 @@ Project page: https://xbpeng.github.io/projects/DeepMimic/index.html
 
 ``sudo apt install clang``
 
+``sudo apt install cmake``
+
 C++:
 
 - Bullet 2.88 (https://github.com/bulletphysics/bullet3/releases)
