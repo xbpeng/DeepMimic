@@ -19,9 +19,12 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 	root_w /= total_w;
 	com_w /= total_w;
 
-	const double pose_scale = 2;
-	const double vel_scale = 0.1;
-	const double end_eff_scale = 40;
+	int num_joints = sim_char.GetNumJoints();
+	assert(num_joints == mJointWeights.size());
+	
+	const double pose_scale = 2.0 / 15 * num_joints;
+	const double vel_scale = 0.1 / 15 * num_joints;
+	const double end_eff_scale = 10;
 	const double root_scale = 5;
 	const double com_scale = 10;
 	const double err_scale = 1;
@@ -60,10 +63,6 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 	double com_err = 0;
 	double heading_err = 0;
 
-	int num_end_effs = 0;
-	int num_joints = sim_char.GetNumJoints();
-	assert(num_joints == mJointWeights.size());
-
 	double root_rot_w = mJointWeights[root_id];
 	pose_err += root_rot_w * cKinTree::CalcRootRotErr(joint_mat, pose0, pose1);
 	vel_err += root_rot_w * cKinTree::CalcRootAngVelErr(joint_mat, vel0, vel1);
@@ -94,13 +93,7 @@ double cSceneImitate::CalcRewardImitate(const cSimCharacter& sim_char, const cKi
 
 			double curr_end_err = (pos_rel1 - pos_rel0).squaredNorm();
 			end_eff_err += curr_end_err;
-			++num_end_effs;
 		}
-	}
-
-	if (num_end_effs > 0)
-	{
-		end_eff_err /= num_end_effs;
 	}
 
 	double root_ground_h0 = mGround->SampleHeight(sim_char.GetRootPos());

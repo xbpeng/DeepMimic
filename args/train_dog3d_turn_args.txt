@@ -1,0 +1,31 @@
+--scene imitate
+
+--time_lim_min 0.5
+--time_lim_max 0.5
+--time_lim_exp 0.2
+--time_end_lim_min 20
+--time_end_lim_max 20
+--time_end_lim_exp 50
+--anneal_samples 32000000
+
+--num_update_substeps 10
+--num_sim_substeps 2
+--world_scale 4
+
+--terrain_file data/terrain/plane.txt
+
+--char_types general
+--character_files data/characters/dog3d.txt
+--enable_char_soft_contact false
+--fall_contact_bodies 0 1 2 3 4 5 6 7 9 10 11 13 14 15 17 18 19 21 22
+
+--char_ctrls ct_pd
+--char_ctrl_files data/controllers/dog3d_ctrl.txt
+--motion_file data/motions/dog3d_turn.txt
+--sync_char_root_pos true
+--sync_char_root_rot true
+
+--agent_files data/agents/ct_agent_dog_ppo.txt
+
+--output_path output
+#--int_output_path output/intermediate

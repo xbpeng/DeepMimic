@@ -1,0 +1,23 @@
+--scene imitate
+
+--num_update_substeps 10
+--num_sim_substeps 2
+--world_scale 4
+
+--terrain_file data/terrain/plane.txt
+
+--char_types general
+--character_files data/characters/dog3d.txt
+--enable_char_soft_contact false
+--fall_contact_bodies 0 1 2 3 4 5 6 7 9 10 11 13 14 15 17 18 19 21 22
+
+--char_ctrls ct_pd
+--char_ctrl_files data/controllers/dog3d_ctrl.txt
+--motion_file data/motions/dog3d_canter.txt
+--sync_char_root_pos true
+--sync_char_root_rot false
+
+--agent_files data/agents/ct_agent_dog_ppo.txt
+--train_agents false
+
+--model_files data/policies/dog3d/dog3d_canter.ckpt

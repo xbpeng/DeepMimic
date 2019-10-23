@@ -27,7 +27,7 @@
 	"TDLambda": 0.95,
 	
 	"OutputIters": 10,
-	"IntOutputIters": 400,
+	"IntOutputIters": 200,
 	"TestEpisodes": 32,
 
 	"ExpAnnealSamples": 64000000,
