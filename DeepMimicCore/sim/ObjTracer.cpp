@@ -215,7 +215,7 @@ void cObjTracer::DrawTracePos(const tTrace& trace) const
 {
 	if (trace.mSampleBuffer.GetSize() > 1)
 	{
-		cDrawUtil：：LoadShaderUniforms();
+		cDrawUtil::LoadShaderUniforms();
 		glBegin(GL_LINE_STRIP);
 		for (size_t i = 0; i < trace.mSampleBuffer.GetSize(); ++i)
 		{
