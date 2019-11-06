@@ -134,7 +134,7 @@ python DeepMimic.py --arg_file args/run_humanoid3d_spinkick_args.txt
 
 will run a pre-trained policy for a spinkick. Similarly,
 ```
-python DeepMimic.py --arg_file args/kin_char_args.txt
+python DeepMimic.py --arg_file args/play_motion_humanoid3d_args.txt
 ```
 
 will load and play a mocap clip.
@@ -174,10 +174,10 @@ corresponds to the motion that your policy was trained for, otherwise the policy
 
 ## Mocap Data
 Mocap clips are located in `data/motions/`. To play a clip, first modify 
-`args/kin_char_args.txt` and specify the file to play with
+`args/play_motion_humanoid3d_args.txt` and specify the file to play with
 `--motion_file`, then run
 ```
-python DeepMimic.py --arg_file args/kin_char_args.txt
+python DeepMimic.py --arg_file args/play_motion_humanoid3d_args.txt
 ```
 
 The motion files follow the JSON format. The `"Loop"` field specifies whether or not the motion is cyclic.
