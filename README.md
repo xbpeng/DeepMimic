@@ -137,9 +137,9 @@ will run a pre-trained policy for a spinkick. Similarly,
 python DeepMimic.py --arg_file args/play_motion_humanoid3d_args.txt
 ```
 
-will load and play a mocap clip. To run a pre-trained policy for a simulated dog, use this command,
+will load and play a mocap clip. To run a pre-trained policy for a simulated dog, use this command
 ```
-python DeepMimic.py --arg_file args/run_dog3d_pace_args.txt.txt
+python DeepMimic.py --arg_file args/run_dog3d_pace_args.txt
 ```
 
 To train a policy, run `mpi_run.py` by specifying an argument file and the number of worker processes.
