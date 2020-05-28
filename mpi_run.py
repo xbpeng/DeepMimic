@@ -13,7 +13,7 @@ def main():
     assert(num_workers > 0)
 
     Logger.print('Running with {:d} workers'.format(num_workers))
-    cmd = 'mpiexec -n {:d} python DeepMimic_Optimizer.py '.format(num_workers)
+    cmd = 'mpiexec -n {:d} python3 DeepMimic_Optimizer.py '.format(num_workers)
     cmd += ' '.join(args)
     Logger.print('cmd: ' + cmd)
     subprocess.call(cmd, shell=True)
