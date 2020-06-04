@@ -19,7 +19,7 @@ public:
 	virtual ~cSimBodyLink();
 
 	virtual void Init(const std::shared_ptr<cWorld>& world, const std::shared_ptr<cMultiBody>& mult_body, const tParams& params);
-	virtual tVector GetSize() const;
+	virtual tVector GetSize() const override;
 	
 	virtual tVector GetLinearVelocity() const;
 	virtual tVector GetLinearVelocity(const tVector& local_pos) const;

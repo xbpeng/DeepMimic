@@ -69,7 +69,7 @@ public:
 	virtual tVector CalcCOM() const;
 	virtual tVector CalcCOMVel() const;
 	virtual void CalcAABB(tVector& out_min, tVector& out_max) const;
-	virtual tVector GetSize() const;
+	virtual tVector GetSize() const override;
 
 	virtual const cSimBodyJoint& GetJoint(int joint_id) const;
 	virtual cSimBodyJoint& GetJoint(int joint_id);
