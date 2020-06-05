@@ -28,7 +28,7 @@ public:
 	virtual double GetRadius() const;
 	virtual tVector GetSize() const override;
 
-	virtual cShape::eShape GetShape() const;
+	virtual cShape::eShape GetShape() const override;
 
 protected:
 };

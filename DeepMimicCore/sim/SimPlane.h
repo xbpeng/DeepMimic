@@ -22,7 +22,7 @@ public:
 
 	virtual void Init(const std::shared_ptr<cWorld>& world, const tParams& params);
 	virtual tVector GetCoeffs() const;
-	virtual cShape::eShape GetShape() const;
+	virtual cShape::eShape GetShape() const override;
 	virtual tVector GetSize() const override;
 
 protected:

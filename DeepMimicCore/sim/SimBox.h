@@ -25,7 +25,7 @@ public:
 	virtual ~cSimBox();
 
 	virtual void Init(const std::shared_ptr<cWorld>& world, const tParams& params);
-	virtual tVector GetSize() const;
+	virtual tVector GetSize() const override;
 
 	virtual cShape::eShape GetShape() const override;
 

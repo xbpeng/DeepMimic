@@ -30,7 +30,7 @@ public:
 	virtual double GetRadius() const;
 
 	virtual cShape::eShape GetShape() const override;
-	virtual tVector GetSize() const;
+	virtual tVector GetSize() const override;
 
 protected:
 };

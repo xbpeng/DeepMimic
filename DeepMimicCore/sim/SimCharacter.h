@@ -34,41 +34,41 @@ public:
 	virtual ~cSimCharacter();
 
 	virtual bool Init(const std::shared_ptr<cWorld>& world, const tParams& params);
-	virtual void Clear();
-	virtual void Reset();
-	virtual void Update(double time_step);
+	virtual void Clear() override;
+	virtual void Reset() override;
+	virtual void Update(double time_step) override;
 	virtual void PostUpdate(double time_step);
 
-	virtual tVector GetRootPos() const;
-	virtual void GetRootRotation(tVector& out_axis, double& out_theta) const;
-	virtual tQuaternion GetRootRotation() const;
+	virtual tVector GetRootPos() const override;
+	virtual void GetRootRotation(tVector& out_axis, double& out_theta) const override;
+	virtual tQuaternion GetRootRotation() const override;
 	virtual tVector GetRootVel() const;
 	virtual tVector GetRootAngVel() const;
 	virtual const Eigen::MatrixXd& GetBodyDefs() const;
-	virtual void SetRootPos(const tVector& pos);
+	virtual void SetRootPos(const tVector& pos) override;
 	virtual void SetRootRotation(const tVector& axis, double theta);
-	virtual void SetRootRotation(const tQuaternion& q);
+	virtual void SetRootRotation(const tQuaternion& q) override;
 	virtual void SetRootTransform(const tVector& pos, const tQuaternion& rot);
 
-	virtual void SetRootVel(const tVector& vel);
-	virtual void SetRootAngVel(const tVector& ang_vel);
+	virtual void SetRootVel(const tVector& vel) override;
+	virtual void SetRootAngVel(const tVector& ang_vel) override;
 	
-	virtual tQuaternion CalcHeadingRot() const;
+	virtual tQuaternion CalcHeadingRot() const override;
 
 	virtual int GetNumBodyParts() const;
 
-	virtual void SetPose(const Eigen::VectorXd& pose);
-	virtual void SetVel(const Eigen::VectorXd& vel);
+	virtual void SetPose(const Eigen::VectorXd& pose) override;
+	virtual void SetVel(const Eigen::VectorXd& vel) override;
 
-	virtual tVector CalcJointPos(int joint_id) const;
-	virtual tVector CalcJointVel(int joint_id) const;
-	virtual void CalcJointWorldRotation(int joint_id, tVector& out_axis, double& out_theta) const;
-	virtual tQuaternion CalcJointWorldRotation(int joint_id) const;
-	virtual tMatrix BuildJointWorldTrans(int joint_id) const;
+	virtual tVector CalcJointPos(int joint_id) const override;
+	virtual tVector CalcJointVel(int joint_id) const override;
+	virtual void CalcJointWorldRotation(int joint_id, tVector& out_axis, double& out_theta) const override;
+	virtual tQuaternion CalcJointWorldRotation(int joint_id) const override;
+	virtual tMatrix BuildJointWorldTrans(int joint_id) const override;
 
-	virtual tVector CalcCOM() const;
-	virtual tVector CalcCOMVel() const;
-	virtual void CalcAABB(tVector& out_min, tVector& out_max) const;
+	virtual tVector CalcCOM() const override;
+	virtual tVector CalcCOMVel() const override;
+	virtual void CalcAABB(tVector& out_min, tVector& out_max) const override;
 	virtual tVector GetSize() const override;
 
 	virtual const cSimBodyJoint& GetJoint(int joint_id) const;
@@ -81,12 +81,12 @@ public:
 	virtual std::shared_ptr<cSimBodyLink> GetRootPart();
 
 	virtual void RegisterContacts(int contact_flags, int filter_flags);
-	virtual void UpdateContact(int contact_flags, int filter_flags);
-	virtual bool IsInContact() const;
+	virtual void UpdateContact(int contact_flags, int filter_flags) override;
+	virtual bool IsInContact() const override;
 	virtual bool IsInContact(int idx) const;
 	virtual const tEigenArr<cContactManager::tContactPt>& GetContactPts(int idx) const;
-	virtual const tEigenArr<cContactManager::tContactPt>& GetContactPts() const;
-	virtual const cContactManager::tContactHandle& GetContactHandle() const;
+	virtual const tEigenArr<cContactManager::tContactPt>& GetContactPts() const override;
+	virtual const cContactManager::tContactHandle& GetContactHandle() const override;
 	
 	virtual bool HasFallen() const;
 	virtual bool HasStumbled() const;
@@ -103,10 +103,10 @@ public:
 	virtual const std::shared_ptr<cCharController>& GetController() const;
 	virtual void EnableController(bool enable);
 
-	virtual void ApplyForce(const tVector& force);
-	virtual void ApplyForce(const tVector& force, const tVector& local_pos);
-	virtual void ApplyTorque(const tVector& torque);
-	virtual void ClearForces();
+	virtual void ApplyForce(const tVector& force) override;
+	virtual void ApplyForce(const tVector& force, const tVector& local_pos) override;
+	virtual void ApplyTorque(const tVector& torque) override;
+	virtual void ClearForces() override;
 	virtual void ApplyControlForces(const Eigen::VectorXd& tau);
 	virtual void PlayPossum();
 
@@ -116,7 +116,7 @@ public:
 	virtual void SetLinearDamping(double damping);
 	virtual void SetAngularDamping(double damping);
 
-	virtual const std::shared_ptr<cWorld>& GetWorld() const;
+	virtual const std::shared_ptr<cWorld>& GetWorld() const override;
 	virtual const std::shared_ptr<cMultiBody>& GetMultiBody() const;
 	virtual const std::vector<std::shared_ptr<btMultiBodyJointLimitConstraint>>& GetConstraints() const;
 
@@ -188,5 +188,5 @@ protected:
 
 	virtual bool CheckFallContact() const;
 	virtual const btCollisionObject* GetCollisionObject() const override;
-	virtual btCollisionObject* GetCollisionObject();
+	virtual btCollisionObject* GetCollisionObject() override;
 };
