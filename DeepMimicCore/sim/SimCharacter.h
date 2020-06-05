@@ -121,24 +121,24 @@ public:
 	virtual const std::vector<std::shared_ptr<btMultiBodyJointLimitConstraint>>& GetConstraints() const;
 
 	// cSimObj Interface
-	virtual tVector GetPos() const;
-	virtual void SetPos(const tVector& pos);
-	virtual void GetRotation(tVector& out_axis, double& out_theta) const;
-	virtual tQuaternion GetRotation() const;
-	virtual void SetRotation(const tVector& axis, double theta);
-	virtual void SetRotation(const tQuaternion& q);
-	virtual tMatrix GetWorldTransform() const;
+	virtual tVector GetPos() const override;
+	virtual void SetPos(const tVector& pos) override;
+	virtual void GetRotation(tVector& out_axis, double& out_theta) const override;
+	virtual tQuaternion GetRotation() const override;
+	virtual void SetRotation(const tVector& axis, double theta) override;
+	virtual void SetRotation(const tQuaternion& q) override;
+	virtual tMatrix GetWorldTransform() const override;
 
-	virtual tVector GetLinearVelocity() const;
-	virtual tVector GetLinearVelocity(const tVector& local_pos) const;
-	virtual void SetLinearVelocity(const tVector& vel);
-	virtual tVector GetAngularVelocity() const;
-	virtual void SetAngularVelocity(const tVector& vel);
+	virtual tVector GetLinearVelocity() const override;
+	virtual tVector GetLinearVelocity(const tVector& local_pos) const override;
+	virtual void SetLinearVelocity(const tVector& vel) override;
+	virtual tVector GetAngularVelocity() const override;
+	virtual void SetAngularVelocity(const tVector& vel) override;
 
-	virtual short GetColGroup() const;
-	virtual void SetColGroup(short col_group);
-	virtual short GetColMask() const;
-	virtual void SetColMask(short col_mask);
+	virtual short GetColGroup() const override;
+	virtual void SetColGroup(short col_group) override;
+	virtual short GetColMask() const override;
+	virtual void SetColMask(short col_mask) override;
 
 protected:
 	std::shared_ptr<cMultiBody> mMultBody;
@@ -187,6 +187,6 @@ protected:
 	virtual void BuildVel(Eigen::VectorXd& out_vel) const;
 
 	virtual bool CheckFallContact() const;
-	virtual const btCollisionObject* GetCollisionObject() const;
+	virtual const btCollisionObject* GetCollisionObject() const override;
 	virtual btCollisionObject* GetCollisionObject();
 };
