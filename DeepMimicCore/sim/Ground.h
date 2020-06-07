@@ -69,7 +69,7 @@ public:
 	virtual size_t GetUpdateCount() const;
 	virtual void SeedRand(unsigned long seed);
 	virtual void SamplePlacement(const tVector& origin, tVector& out_pos, tQuaternion& out_rot);
-	virtual tVector GetSize() const;
+	virtual tVector GetSize() const override;
 	virtual double GetVertSpacingX() const;
 	virtual double GetVertSpacingZ() const;
 
