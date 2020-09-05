@@ -13,7 +13,7 @@
 *.ipdb
 *.pyd
 *_wrap.cpp
-*.htm
+
 
 .vs/
 __pycache__/
