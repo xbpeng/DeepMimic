@@ -33,7 +33,7 @@ C++:
 
 - Eigen (http://www.eigen.tuxfamily.org/index.php?title=Main_Page) (Version : 3.3.7)
 
-	``mkdir build``
+	``mkdir build && cd build``
 	
 	``cmake ..``
 	
