@@ -328,10 +328,10 @@ const tVector& cSimBodyJoint::GetLimHigh() const
 
 bool cSimBodyJoint::HasJointLim() const
 {
-	return (mParams.mLimLow[0] <= mParams.mLimLow[0]
-			|| mParams.mLimLow[1] <= mParams.mLimLow[1]
-			|| mParams.mLimLow[2] <= mParams.mLimLow[2]
-			|| mParams.mLimLow[3] <= mParams.mLimLow[3]);
+	return (mParams.mLimLow[0] <= mParams.mLimHigh[0]
+			|| mParams.mLimLow[1] <= mParams.mLimHigh[1]
+			|| mParams.mLimLow[2] <= mParams.mLimHigh[2]
+			|| mParams.mLimLow[3] <= mParams.mLimHigh[3]);
 }
 
 int cSimBodyJoint::GetParamSize() const
