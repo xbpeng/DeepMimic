@@ -41,6 +41,14 @@ public:
 	virtual double GetRewardMin(int agent_id) const;
 	virtual double GetRewardMax(int agent_id) const;
 
+	virtual bool EnableAMPTaskReward() const;
+	virtual int GetAMPObsSize() const;
+	virtual void GetAMPObsOffset(Eigen::VectorXd& out_data) const;
+	virtual void GetAMPObsScale(Eigen::VectorXd& out_data) const;
+	virtual void GetAMPObsNormGroup(Eigen::VectorXi& out_data) const;
+	virtual void RecordAMPObsAgent(int agent_id, Eigen::VectorXd& out_data);
+	virtual void RecordAMPObsExpert(int agent_id, Eigen::VectorXd& out_data);
+	
 	virtual eTerminate CheckTerminate(int agent_id) const;
 	virtual bool CheckValidEpisode() const;
 	virtual void LogVal(int agent_id, double val);

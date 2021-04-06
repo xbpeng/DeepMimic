@@ -1,13 +1,18 @@
 # Intro 
 
-Code accompanying the SIGGRAPH 2018 paper:
-"DeepMimic: Example-Guided Deep Reinforcement Learning of Physics-Based Character Skills".
+Code accompanying the following papers:
+
+"DeepMimic: Example-Guided Deep Reinforcement Learning of Physics-Based Character Skills" \
+(https://xbpeng.github.io/projects/DeepMimic/index.html) \
+![Skills](images/deepmimic_teaser.png)
+
+"AMP: Adversarial Motion Priors for Stylized Physics-Based Character Control" \
+(https://xbpeng.github.io/projects/AMP/index.html) \
+![Skills](images/amp_teaser.png)
+
 The framework uses reinforcement learning to train a simulated humanoid to imitate a variety
 of motion skills from mocap data.
 
-Project page: https://xbpeng.github.io/projects/DeepMimic/index.html
-
-![Skills](images/teaser.png)
 
 ## Dependencies
 
@@ -145,10 +150,10 @@ python DeepMimic.py --arg_file args/run_dog3d_pace_args.txt
 To train a policy, use `mpi_run.py` by specifying an argument file and the number of worker processes.
 For example,
 ```
-python mpi_run.py --arg_file args/train_humanoid3d_spinkick_args.txt --num_workers 4
+python mpi_run.py --arg_file args/train_humanoid3d_spinkick_args.txt --num_workers 16
 ```
 
-will train a policy to perform a spinkick using 4 workers. As training progresses, it will regularly
+will train a policy to perform a spinkick using 16 workers. As training progresses, it will regularly
 print out statistics and log them to `output/` along with a `.ckpt` of the latest policy.
 It typically takes about 60 millions samples to train one policy, which can take a day
 when training with 16 workers. 16 workers is likely the max number of workers that the
@@ -161,6 +166,15 @@ To run your own policies, take one of the `run_[something]_args.txt` files and s
 the policy you want to run with `--model_file`. Make sure that the reference motion `--motion_file`
 corresponds to the motion that your policy was trained for, otherwise the policy will not run properly.
 
+Similarly, to train a policy using amp, run with the corresponding argument files:
+```
+python mpi_run.py --arg_file args/train_amp_target_humanoid3d_locomotion_args.txt --num_workers 16
+```
+
+Pretrained AMP models can be evaluated using:
+```
+python DeepMimic.py --arg_file args/run_amp_target_humanoid3d_locomotion_args.txt
+```
 
 ## Interface
 - the plot on the top-right shows the predictions of the value function

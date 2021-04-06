@@ -1,0 +1,49 @@
+--scene heading_amp_getup
+
+--time_lim_min 0.5
+--time_lim_max 0.5
+--time_lim_exp 0.2
+--time_end_lim_min 20
+--time_end_lim_max 20
+--time_end_lim_exp 50
+--anneal_samples 64000000
+
+--num_update_substeps 10
+--num_sim_substeps 2
+--world_scale 4
+
+--terrain_file data/terrain/plane.txt
+
+--char_types general
+--character_files data/characters/humanoid3d.txt
+--enable_char_soft_contact false
+--fall_contact_bodies 0 1 2 3 4 6 7 8 9 10 12 13 14
+
+--char_ctrls ct_pd
+--char_ctrl_files data/controllers/humanoid3d_ctrl.txt
+--kin_ctrl clips
+--motion_file data/datasets/humanoid3d_clips_locomotion_getup.txt
+--sync_char_root_pos true
+--sync_char_root_rot false
+--enable_rand_rot_reset true
+--enable_amp_obs_local_root true
+--getup_motion_ids 2 3
+--getup_height_root 0.5
+--getup_height_head 1.3
+--head_id 2
+--recover_episode_prob 0.2
+
+--rand_target_time_min 0.2
+--rand_target_time_max 0.5
+--max_heading_turn_rate 0.15
+--sharp_turn_prob 0.01
+--speed_change_prob 0.02
+--tar_speed_min 1
+--tar_speed_max 5
+--tar_speed 1
+--vel_reward_scale 0.25
+
+--agent_files data/agents/ct_agent_humanoid_amp_tasks.txt
+
+--output_path output
+#--int_output_path output/intermediate

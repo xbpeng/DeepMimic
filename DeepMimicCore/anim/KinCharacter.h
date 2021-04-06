@@ -2,6 +2,7 @@
 
 #include "anim/Character.h"
 #include "anim/Motion.h"
+#include "anim/KinController.h"
 
 class cKinCharacter : public cCharacter
 {
@@ -16,7 +17,6 @@ public:
 
 		int mID;
 		std::string mCharFile;
-		std::string mMotionFile;
 		std::string mStateFile;
 		tVector mOrigin;
 		bool mLoadDrawShapes;
@@ -31,18 +31,23 @@ public:
 	virtual void Reset();
 
 	virtual bool LoadMotion(const std::string& motion_file);
-	virtual const cMotion& GetMotion() const;
+	virtual const cMotion* GetMotion() const;
+	virtual cMotion* GetMotion();
 	virtual double GetMotionDuration() const;
-	virtual void SetMotionDuration(double dur);
+	virtual void ChangeMotionDuration(double dur);
+	virtual bool EnableMotionLoop() const;
+	virtual int GetNumMotionFrames() const;
+
 	virtual void SetTime(double time);
 	virtual double GetTime() const;
 	virtual int GetCycle() const;
 	virtual double GetPhase() const;
 
+	virtual void Pose();
 	virtual void Pose(double time);
 	virtual void BuildAcc(Eigen::VectorXd& out_acc) const;
-	
-	virtual bool HasMotion() const;
+	virtual cMotion::tFrame GetMotionFrame(int f) const;
+	virtual cMotion::tFrame GetMotionFrameVel(int f) const;
 
 	virtual void SetRootPos(const tVector& pos);
 	virtual void SetRootRotation(const tQuaternion& q);
@@ -62,20 +67,20 @@ public:
 
 	// motion processing methods
 	virtual void BlendFrames(const cMotion::tFrame* a, const cMotion::tFrame* b, double lerp, cMotion::tFrame* out_frame) const;
-	virtual void MirrorFrame(const std::vector<int>* right_joints, const std::vector<int>* left_joints, cMotion::tFrame* out_frame) const;
+	virtual void BlendVel(const Eigen::VectorXd* a, const Eigen::VectorXd* b, double lerp, Eigen::VectorXd* out_vel) const;
 	virtual void CalcFrameVel(const cMotion::tFrame* a, const cMotion::tFrame* b, double timestep, cMotion::tFrame* out_vel) const;
-	virtual void PostProcessFrame(cMotion::tFrame* out_frame) const;
+	virtual void PostProcessPose(cMotion::tFrame* out_frame) const;
 	
+	virtual void SetController(const std::shared_ptr<cKinController>& ctrl);
+	virtual const std::shared_ptr<cKinController>& GetController() const;
+	virtual void RemoveController();
+	virtual bool HasController() const;
+
 	virtual tVector GetCycleRootDelta() const;
 
 protected:
-	double mTime;
-	cMotion mMotion;
+	std::shared_ptr<cKinController> mController;
 
-	tVector mCycleRootDelta;
 	tVector mOrigin;
 	tQuaternion mOriginRot;
-
-	virtual void ResetParams();
-	virtual tVector CalcCycleRootDelta() const;
 };

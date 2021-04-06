@@ -111,6 +111,11 @@ void Update(double time_elapsed)
 				double r = gCore->CalcReward(id);
 				++gSampleCount;
 
+				if (gCore->GetTime() > 0)
+				{
+					gCore->RecordAMPObsAgent(id);
+				}
+
 				std::vector<double> action = std::vector<double>(gCore->GetActionSize(id), 0);
 				gCore->SetAction(id, action);
 			}
@@ -332,10 +337,7 @@ void InitFrameBuffers(void)
 void InitDraw(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitContextVersion(3, 2);
-	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
-	glutInitContextProfile(GLUT_CORE_PROFILE);
-
+	
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(gWinWidth, gWinHeight);
 	glutCreateWindow("DeepMimic");

@@ -1,0 +1,51 @@
+--scene strike_amp
+
+--time_lim_min 0.5
+--time_lim_max 0.5
+--time_lim_exp 0.2
+--time_end_lim_min 20
+--time_end_lim_max 20
+--time_end_lim_exp 50
+--anneal_samples 64000000
+
+--num_update_substeps 10
+--num_sim_substeps 2
+--world_scale 4
+
+--terrain_file data/terrain/plane.txt
+
+--char_types general
+--character_files data/characters/humanoid3d.txt
+--enable_char_soft_contact false
+--fall_contact_bodies 0 1 2 3 4 6 7 8 9 10 12 13 14
+
+--char_ctrls ct_pd
+--char_ctrl_files data/controllers/humanoid3d_ctrl.txt
+--kin_ctrl clips
+--motion_file data/datasets/humanoid3d_clips_walk_punch.txt
+--sync_char_root_pos true
+--sync_char_root_rot false
+--enable_amp_obs_local_root true
+
+--target_hit_reset_time 2
+--max_target_dist 10
+--target_radius 0.2
+--tar_fail_dist 15
+--tar_speed 1
+--enable_min_tar_vel true
+--pos_reward_scale 0.5
+
+--target_min -0.5 1.2 0.6
+--target_max 0.5 1.4 1.1
+--tar_near_dist 1.4
+--tar_far_prob 0.4
+--strike_bodies 8
+--fail_tar_contact_bodies 0 1 2
+--init_hit_prob 0.1
+--hit_tar_speed 1.5
+--tar_reward_scale 2
+
+--agent_files data/agents/ct_agent_humanoid_amp_tasks.txt
+
+--output_path output
+#--int_output_path output/intermediate

@@ -83,6 +83,11 @@ void cDeepMimicCharController::UpdateApplyTau(const Eigen::VectorXd& tau)
 	mChar->ApplyControlForces(tau);
 }
 
+void cDeepMimicCharController::SetGround(std::shared_ptr<cGround> ground)
+{
+	mGround = ground;
+}
+
 void cDeepMimicCharController::SetViewDistMin(double dist)
 {
 	mViewDistMin = dist;
@@ -174,12 +179,6 @@ void cDeepMimicCharController::RecordState(Eigen::VectorXd& out_state)
 	out_state.segment(vel_offset, vel_size) = vel;
 }
 
-void cDeepMimicCharController::RecordGoal(Eigen::VectorXd& out_goal) const
-{
-	int goal_size = GetGoalSize();
-	out_goal = std::numeric_limits<double>::quiet_NaN() * Eigen::VectorXd::Ones(goal_size);
-}
-
 eActionSpace cDeepMimicCharController::GetActionSpace() const
 {
 	return eActionSpaceContinuous;
@@ -269,6 +268,21 @@ void cDeepMimicCharController::HandleNewAction()
 
 void cDeepMimicCharController::PostProcessAction(Eigen::VectorXd& out_action) const
 {
+}
+
+bool cDeepMimicCharController::HasGround() const
+{
+	return mGround != nullptr;
+}
+
+double cDeepMimicCharController::SampleGroundHeight(const tVector& pos) const
+{
+	double h = 0;
+	if (mGround != nullptr)
+	{
+		h = mGround->SampleHeight(pos);
+	}
+	return h;
 }
 
 void cDeepMimicCharController::BuildStatePose(Eigen::VectorXd& out_pose) const

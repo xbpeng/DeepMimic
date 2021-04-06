@@ -143,7 +143,28 @@ class DeepMimicEnv(Env):
 
     def get_reward_succ(self, agent_id):
         return self._core.GetRewardSucc(agent_id)
+    
+    def enable_amp_task_reward(self):
+        return self._core.EnableAMPTaskReward()
 
+    def get_amp_obs_size(self):
+        return self._core.GetAMPObsSize()
+
+    def get_amp_obs_offset(self):
+        return np.array(self._core.GetAMPObsOffset())
+    
+    def get_amp_obs_scale(self):
+        return np.array(self._core.GetAMPObsScale())
+    
+    def get_amp_obs_norm_group(self):
+        return np.array(self._core.GetAMPObsNormGroup())
+    
+    def record_amp_obs_expert(self, agent_id):
+        return np.array(self._core.RecordAMPObsExpert(agent_id))
+
+    def record_amp_obs_agent(self, agent_id):
+        return np.array(self._core.RecordAMPObsAgent(agent_id))
+    
     def is_episode_end(self):
         return self._core.IsEpisodeEnd()
 

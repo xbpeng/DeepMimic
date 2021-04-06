@@ -14,6 +14,20 @@ std::string cCtVelController::GetName() const
 	return "ct_vel";
 }
 
+int cCtVelController::GetCtrlParamSize(int joint_id) const
+{
+	int param_size = 0;
+	int root_id = mChar->GetRootID();
+
+	if (joint_id != root_id)
+	{
+		const auto& joint_mat = mChar->GetJointMat();
+		param_size = cCtCtrlUtil::GetParamDimVel(joint_mat, joint_id);
+	}
+
+	return param_size;
+}
+
 void cCtVelController::SetupPDControllers(const Json::Value& json, const tVector& gravity)
 {
 	cCtPDController::SetupPDControllers(json, gravity);

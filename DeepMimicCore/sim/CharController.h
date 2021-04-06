@@ -24,12 +24,10 @@ public:
 	virtual bool NeedNewAction() const;
 	virtual void ApplyAction(const Eigen::VectorXd& action);
 	virtual void RecordState(Eigen::VectorXd& out_state);
-	virtual void RecordGoal(Eigen::VectorXd& out_goal) const;
 	virtual void RecordAction(Eigen::VectorXd& out_action) const;
 
 	virtual eActionSpace GetActionSpace() const = 0;
 	virtual int GetStateSize() const;
-	virtual int GetGoalSize() const;
 	virtual int GetActionSize() const;
 	virtual int GetNumActions() const;
 
@@ -37,13 +35,11 @@ public:
 	virtual void HandleVelReset();
 
 	virtual void BuildStateOffsetScale(Eigen::VectorXd& out_offset, Eigen::VectorXd& out_scale) const;
-	virtual void BuildGoalOffsetScale(Eigen::VectorXd& out_offset, Eigen::VectorXd& out_scale) const;
 	virtual void BuildActionOffsetScale(Eigen::VectorXd& out_offset, Eigen::VectorXd& out_scale) const;
 	virtual void BuildActionBounds(Eigen::VectorXd& out_min, Eigen::VectorXd& out_max) const;
 	
 	virtual void BuildStateNormGroups(Eigen::VectorXi& out_groups) const;
-	virtual void BuildGoalNormGroups(Eigen::VectorXi& out_groups) const;
-
+	
 	virtual double GetRewardMin() const;
 	virtual double GetRewardMax() const;
 

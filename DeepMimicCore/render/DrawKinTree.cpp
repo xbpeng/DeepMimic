@@ -6,7 +6,7 @@
 
 void cDrawKinTree::Draw(const Eigen::MatrixXd& joint_desc, const Eigen::VectorXd& pose, double link_width, const tVector& fill_col, const tVector& line_col)
 {
-	int root_id = cKinTree::GetRoot(joint_desc);
+	int root_id = cKinTree::GetRootID();
 	cDrawUtil::SetLineWidth(1);
 	DrawTree(joint_desc, pose, root_id, link_width, fill_col, line_col);
 }

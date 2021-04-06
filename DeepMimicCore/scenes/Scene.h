@@ -12,7 +12,6 @@
 class cScene
 {
 public:
-
 	virtual ~cScene();
 	
 	virtual void ParseArgs(const std::shared_ptr<cArgParser>& parser);

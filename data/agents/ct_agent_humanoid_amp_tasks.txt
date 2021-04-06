@@ -1,0 +1,60 @@
+{
+	"AgentType": "AMP",
+
+	"ActorNet": "fc_2layers_gated_1024units",
+	"ActorStepsize": 0.000004,
+	"ActorMomentum": 0.9,
+	"ActorWeightDecay": 0.0005,
+	"ActorInitOutputScale": 0.01,
+
+	"CriticNet": "fc_2layers_gated_1024units",
+	"CriticStepsize": 0.00002,
+	"CriticMomentum": 0.9,
+	"CriticWeightDecay": 0,
+
+	"ItersPerUpdate": 1,
+	"Discount": 0.99,
+	"BatchSize": 4096,
+	"MiniBatchSize": 256,
+	"Epochs": 1,
+	"ReplayBufferSize": 1000000,
+	"InitSamples": 1,
+	"NormalizerSamples": 1000000,
+
+	"RatioClip": 0.2,
+	"NormAdvClip": 4,
+	"TDLambda": 0.95,
+	
+	"TaskRewardLerp": 0.5,
+	
+	"DiscNet": "fc_2layers_1024units",
+	"DiscInitOutputScale": 1,
+	"DiscStepSize": 0.00001,
+	"DiscMomentum": 0.9,
+	"DiscWeightDecay": 0.0005,
+	"DiscLogitRegWeight": 0.05,
+	"DiscGradPenalty": 10,
+	"DiscBatchSize": 256,
+	"DiscStepsPerBatch": 2,
+	"DiscExpertBufferSize": 100000,
+	"DiscAgentBufferSize": 100000,
+	"RewardScale": 2,
+
+	"OutputIters": 10,
+	"IntOutputIters": 200,
+	"TestEpisodes": 32,
+
+	"ExpAnnealSamples": 200000000,
+	
+	"ExpParamsBeg":
+	{
+		"Rate": 1,
+		"Noise": 0.05
+	},
+
+	"ExpParamsEnd":
+	{
+		"Rate": 0.2,
+		"Noise": 0.05
+	}
+}

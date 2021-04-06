@@ -63,6 +63,25 @@ bool cCtPDController::ParseParams(const Json::Value& json)
 	return succ;
 }
 
+int cCtPDController::GetCtrlParamSize(int joint_id) const
+{
+	int param_size = 0;
+	int root_id = mChar->GetRootID();
+
+	if (joint_id != root_id)
+	{
+		const auto& joint_mat = mChar->GetJointMat();
+		param_size = cCtCtrlUtil::GetParamDimPD(joint_mat, joint_id);
+	}
+
+	return param_size;
+}
+
+double cCtPDController::GetMaxPDExpVal() const
+{
+	return cCtCtrlUtil::gMaxPDExpVal;
+}
+
 void cCtPDController::UpdateBuildTau(double time_step, Eigen::VectorXd& out_tau)
 {
 	UpdatePDCtrls(time_step, out_tau);
@@ -93,33 +112,27 @@ void cCtPDController::BuildJointActionOffsetScale(int joint_id, Eigen::VectorXd&
 	cCtCtrlUtil::BuildOffsetScalePD(joint_mat, joint_id, out_offset, out_scale);
 }
 
-void cCtPDController::ConvertActionToTargetPose(int joint_id, Eigen::VectorXd& out_theta) const
+void cCtPDController::ConvertActionToTargetPose(int joint_id, const Eigen::VectorXd& action_params, Eigen::VectorXd& out_theta) const
 {
-#if defined(ENABLE_PD_SPHERE_AXIS)
+	const double max_len = GetMaxPDExpVal();
+
 	cKinTree::eJointType joint_type = GetJointType(joint_id);
 	if (joint_type == cKinTree::eJointTypeSpherical)
 	{
-		double rot_theta = out_theta[0];
-		tVector axis = tVector(out_theta[1], out_theta[2], out_theta[3], 0);
-		if (axis.squaredNorm() == 0)
+		tVector exp_map = tVector(action_params[0], action_params[1], action_params[2], 0);
+		double len = exp_map.norm();
+		if (len > max_len)
 		{
-			axis[2] = 1;
+			exp_map *= max_len / len;
 		}
 
-		axis.normalize();
-		tQuaternion quat = cMathUtil::AxisAngleToQuaternion(axis, rot_theta);
-
-		if (FlipStance())
-		{
-			cKinTree::eJointType joint_type = GetJointType(joint_id);
-			if (joint_type == cKinTree::eJointTypeSpherical)
-			{
-				quat = cMathUtil::MirrorQuaternion(quat, cMathUtil::eAxisZ);
-			}
-		}
+		tQuaternion quat = cMathUtil::ExpMapToQuaternion(exp_map);
 		out_theta = cMathUtil::QuatToVec(quat);
 	}
-#endif
+	else
+	{
+		out_theta = action_params;
+	}
 }
 
 cKinTree::eJointType cCtPDController::GetJointType(int joint_id) const
@@ -133,22 +146,20 @@ cKinTree::eJointType cCtPDController::GetJointType(int joint_id) const
 void cCtPDController::SetPDTargets(const Eigen::VectorXd& targets)
 {
 	int root_id = mChar->GetRootID();
-	int root_size = mChar->GetParamSize(root_id);
 	int num_joints = mChar->GetNumJoints();
-	int ctrl_offset = GetActionCtrlOffset();
 
 	for (int j = root_id + 1; j < num_joints; ++j)
 	{
 		if (mPDCtrl.IsValidPDCtrl(j))
 		{
 			int retarget_joint = RetargetJointID(j);
-			int param_offset = mChar->GetParamOffset(retarget_joint);
-			int param_size = mChar->GetParamSize(retarget_joint);
+			int param_offset = GetCtrlParamOffset(retarget_joint);
+			int param_size = GetCtrlParamSize(retarget_joint);
+			auto curr_params = targets.segment(param_offset, param_size);
 
-			param_offset -= root_size;
-			param_offset += ctrl_offset;
-			Eigen::VectorXd theta = targets.segment(param_offset, param_size);
-			ConvertActionToTargetPose(j, theta);
+			Eigen::VectorXd theta;
+			ConvertActionToTargetPose(j, curr_params, theta);
+
 			mPDCtrl.SetTargetTheta(j, theta);
 		}
 	}

@@ -184,18 +184,18 @@ void cSimCharacter::SetRootRotation(const tQuaternion& q)
 
 void cSimCharacter::SetRootTransform(const tVector& pos, const tQuaternion& rot)
 {
-	tQuaternion root_rot = cKinTree::GetRootRot(mJointMat, mPose);
-	tVector root_vel = cKinTree::GetRootVel(mJointMat, mVel);
-	tVector root_ang_vel = cKinTree::GetRootAngVel(mJointMat, mVel);
+	tQuaternion root_rot = cKinTree::GetRootRot(mPose);
+	tVector root_vel = cKinTree::GetRootVel(mVel);
+	tVector root_ang_vel = cKinTree::GetRootAngVel(mVel);
 	tQuaternion delta_rot = rot * root_rot.inverse();
 
 	root_vel = cMathUtil::QuatRotVec(delta_rot, root_vel);
 	root_ang_vel = cMathUtil::QuatRotVec(delta_rot, root_ang_vel);
 
-	cKinTree::SetRootPos(mJointMat, pos, mPose);
-	cKinTree::SetRootRot(mJointMat, rot, mPose);
-	cKinTree::SetRootVel(mJointMat, root_vel, mVel);
-	cKinTree::SetRootAngVel(mJointMat, root_ang_vel, mVel);
+	cKinTree::SetRootPos(pos, mPose);
+	cKinTree::SetRootRot(rot, mPose);
+	cKinTree::SetRootVel(root_vel, mVel);
+	cKinTree::SetRootAngVel(root_ang_vel, mVel);
 
 	SetPose(mPose);
 	SetVel(mVel);
@@ -232,9 +232,9 @@ void cSimCharacter::SetVel(const Eigen::VectorXd& vel)
 	cCharacter::SetVel(vel);
 
 	double world_scale = mWorld->GetScale();
-	int root_id = cKinTree::GetRoot(mJointMat);
-	tVector root_vel = cKinTree::GetRootVel(mJointMat, vel);
-	tVector root_ang_vel = cKinTree::GetRootAngVel(mJointMat, vel);
+	int root_id = cKinTree::GetRootID();
+	tVector root_vel = cKinTree::GetRootVel(vel);
+	tVector root_ang_vel = cKinTree::GetRootAngVel(vel);
 	cKinTree::eJointType root_type = cKinTree::GetJointType(mJointMat, root_id);
 
 	if (!mMultBody->hasFixedBase())
@@ -727,9 +727,9 @@ void cSimCharacter::SetPose(const Eigen::VectorXd& pose)
 	cCharacter::SetPose(pose);
 
 	double world_scale = mWorld->GetScale();
-	int root_id = cKinTree::GetRoot(mJointMat);
-	tVector root_pos = cKinTree::GetRootPos(mJointMat, pose);
-	tQuaternion root_rot = cKinTree::GetRootRot(mJointMat, pose);
+	int root_id = cKinTree::GetRootID();
+	tVector root_pos = cKinTree::GetRootPos(pose);
+	tQuaternion root_rot = cKinTree::GetRootRot(pose);
 	cKinTree::eJointType root_type = cKinTree::GetJointType(mJointMat, root_id);
 
 	tVector euler = cMathUtil::QuaternionToEuler(root_rot);

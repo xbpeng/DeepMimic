@@ -139,6 +139,42 @@ void cDrawRLScene::SetMode(eMode mode)
 	return GetRLScene()->SetMode(mode);
 }
 
+bool cDrawRLScene::EnableAMPTaskReward() const
+{
+	return GetRLScene()->EnableAMPTaskReward();
+}
+
+int cDrawRLScene::GetAMPObsSize() const
+{
+	return GetRLScene()->GetAMPObsSize();
+}
+
+void cDrawRLScene::GetAMPObsOffset(Eigen::VectorXd& out_data) const
+{
+	GetRLScene()->GetAMPObsOffset(out_data);
+}
+
+void cDrawRLScene::GetAMPObsScale(Eigen::VectorXd& out_data) const
+{
+	GetRLScene()->GetAMPObsScale(out_data);
+}
+
+void cDrawRLScene::GetAMPObsNormGroup(Eigen::VectorXi& out_data) const
+{
+	GetRLScene()->GetAMPObsNormGroup(out_data);
+}
+
+void cDrawRLScene::RecordAMPObsAgent(int agent_id, Eigen::VectorXd& out_data)
+{
+	GetRLScene()->RecordAMPObsAgent(agent_id, out_data);
+}
+
+void cDrawRLScene::RecordAMPObsExpert(int agent_id, Eigen::VectorXd& out_data)
+{
+	GetRLScene()->RecordAMPObsExpert(agent_id, out_data);
+}
+
+
 void cDrawRLScene::SetSampleCount(int count)
 {
 	return GetRLScene()->SetSampleCount(count);

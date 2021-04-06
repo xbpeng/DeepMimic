@@ -30,27 +30,27 @@
     <ProjectGuid>{43011113-B968-462C-B99A-539E3E98BC15}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>TerrainRL</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
     <ProjectName>DeepMimicCore</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Swig|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -238,9 +238,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="anim\Character.cpp" />
+    <ClCompile Include="anim\ClipsController.cpp" />
     <ClCompile Include="anim\KinCharacter.cpp" />
+    <ClCompile Include="anim\KinController.cpp" />
+    <ClCompile Include="anim\KinCtrlBuilder.cpp" />
     <ClCompile Include="anim\KinTree.cpp" />
     <ClCompile Include="anim\Motion.cpp" />
+    <ClCompile Include="anim\MotionController.cpp" />
     <ClCompile Include="anim\Shape.cpp" />
     <ClCompile Include="DeepMimicCore_wrap.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -271,17 +275,29 @@
     <ClCompile Include="render\TextureUtil.cpp" />
     <ClCompile Include="render\VertexBuffer.cpp" />
     <ClCompile Include="scenes\DrawRLScene.cpp" />
+    <ClCompile Include="scenes\DrawSceneDribbleAMP.cpp" />
+    <ClCompile Include="scenes\DrawSceneHeadingAMP.cpp" />
+    <ClCompile Include="scenes\DrawSceneHeadingAMPGetup.cpp" />
     <ClCompile Include="scenes\DrawSceneImitate.cpp" />
+    <ClCompile Include="scenes\DrawSceneImitateAMP.cpp" />
     <ClCompile Include="scenes\DrawSceneKinChar.cpp" />
     <ClCompile Include="scenes\DrawSceneSimChar.cpp" />
+    <ClCompile Include="scenes\DrawSceneStrikeAMP.cpp" />
+    <ClCompile Include="scenes\DrawSceneTargetAMP.cpp" />
     <ClCompile Include="scenes\RLScene.cpp" />
     <ClCompile Include="scenes\RLSceneSimChar.cpp" />
+    <ClCompile Include="scenes\SceneDribbleAMP.cpp" />
+    <ClCompile Include="scenes\SceneHeadingAMP.cpp" />
+    <ClCompile Include="scenes\SceneHeadingAMPGetup.cpp" />
     <ClCompile Include="scenes\SceneImitate.cpp" />
+    <ClCompile Include="scenes\SceneImitateAMP.cpp" />
     <ClCompile Include="scenes\SceneKinChar.cpp" />
     <ClCompile Include="scenes\Scene.cpp" />
     <ClCompile Include="scenes\DrawScene.cpp" />
     <ClCompile Include="scenes\SceneBuilder.cpp" />
     <ClCompile Include="scenes\SceneSimChar.cpp" />
+    <ClCompile Include="scenes\SceneStrikeAMP.cpp" />
+    <ClCompile Include="scenes\SceneTargetAMP.cpp" />
     <ClCompile Include="sim\AgentRegistry.cpp" />
     <ClCompile Include="sim\CharController.cpp" />
     <ClCompile Include="sim\ExpPDController.cpp" />
@@ -322,6 +338,7 @@
     <ClCompile Include="DeepMimicCore.cpp" />
     <ClCompile Include="util\Annealer.cpp" />
     <ClCompile Include="util\ArgParser.cpp" />
+    <ClCompile Include="util\DynamicTimeWarper.cpp" />
     <ClCompile Include="util\FileUtil.cpp" />
     <ClCompile Include="util\IndexManager.cpp" />
     <ClCompile Include="util\JsonUtil.cpp" />
@@ -335,9 +352,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="anim\Character.h" />
+    <ClInclude Include="anim\ClipsController.h" />
     <ClInclude Include="anim\KinCharacter.h" />
+    <ClInclude Include="anim\KinController.h" />
+    <ClInclude Include="anim\KinCtrlBuilder.h" />
     <ClInclude Include="anim\KinTree.h" />
     <ClInclude Include="anim\Motion.h" />
+    <ClInclude Include="anim\MotionController.h" />
     <ClInclude Include="anim\Shape.h" />
     <ClInclude Include="render\Camera.h" />
     <ClInclude Include="render\DrawCharacter.h" />
@@ -363,17 +384,29 @@
     <ClInclude Include="render\TextureUtil.h" />
     <ClInclude Include="render\VertexBuffer.h" />
     <ClInclude Include="scenes\DrawRLScene.h" />
+    <ClInclude Include="scenes\DrawSceneDribbleAMP.h" />
+    <ClInclude Include="scenes\DrawSceneHeadingAMP.h" />
+    <ClInclude Include="scenes\DrawSceneHeadingAMPGetup.h" />
     <ClInclude Include="scenes\DrawSceneImitate.h" />
+    <ClInclude Include="scenes\DrawSceneImitateAMP.h" />
     <ClInclude Include="scenes\DrawSceneKinChar.h" />
     <ClInclude Include="scenes\DrawSceneSimChar.h" />
+    <ClInclude Include="scenes\DrawSceneStrikeAMP.h" />
+    <ClInclude Include="scenes\DrawSceneTargetAMP.h" />
     <ClInclude Include="scenes\RLScene.h" />
     <ClInclude Include="scenes\RLSceneSimChar.h" />
+    <ClInclude Include="scenes\SceneDribbleAMP.h" />
+    <ClInclude Include="scenes\SceneHeadingAMP.h" />
+    <ClInclude Include="scenes\SceneHeadingAMPGetup.h" />
     <ClInclude Include="scenes\SceneImitate.h" />
+    <ClInclude Include="scenes\SceneImitateAMP.h" />
     <ClInclude Include="scenes\SceneKinChar.h" />
     <ClInclude Include="scenes\Scene.h" />
     <ClInclude Include="scenes\DrawScene.h" />
     <ClInclude Include="scenes\SceneBuilder.h" />
     <ClInclude Include="scenes\SceneSimChar.h" />
+    <ClInclude Include="scenes\SceneStrikeAMP.h" />
+    <ClInclude Include="scenes\SceneTargetAMP.h" />
     <ClInclude Include="sim\ActionSpace.h" />
     <ClInclude Include="sim\AgentRegistry.h" />
     <ClInclude Include="sim\CharController.h" />
@@ -416,6 +449,7 @@
     <ClInclude Include="util\Annealer.h" />
     <ClInclude Include="util\ArgParser.h" />
     <ClInclude Include="util\CircularBuffer.h" />
+    <ClInclude Include="util\DynamicTimeWarper.h" />
     <ClInclude Include="util\FileUtil.h" />
     <ClInclude Include="util\IndexBuffer.h" />
     <ClInclude Include="util\IndexManager.h" />

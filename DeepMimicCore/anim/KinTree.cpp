@@ -5,10 +5,13 @@
 #include "util/FileUtil.h"
 #include "sim/RBDUtil.h"
 
+const int cKinTree::gInvalidJointID = -1;
 const int cKinTree::gPosDim = 3;
 const int cKinTree::gRotDim = 4;
+const int cKinTree::gVelDim = 3;
+const int cKinTree::gAngVelDim = 3;
 const int cKinTree::gRootDim = gPosDim + gRotDim;
-const int cKinTree::gInvalidJointID = -1;
+const int cKinTree::gRootParamOffset = 0;
 
 // Json keys
 const std::string gJointTypeNames[cKinTree::eJointTypeMax] =
@@ -87,12 +90,6 @@ const std::string gDrawShapeDescKeys[cKinTree::eDrawShapeParamMax] =
 	"ColorA",
 	"MeshID"
 };
-
-int cKinTree::GetRoot(const Eigen::MatrixXd& joint_desc)
-{
-	// this should always be true right?
-	return 0;
-}
 
 void cKinTree::FindChildren(const Eigen::MatrixXd& joint_desc, int joint_id, Eigen::VectorXi& out_children)
 {
@@ -483,72 +480,58 @@ bool cKinTree::Load(const Json::Value& root, Eigen::MatrixXd& out_joint_mat)
 	return succ;
 }
 
-bool cKinTree::HasValidRoot(const Eigen::MatrixXd& joint_desc)
+tVector cKinTree::GetRootPos(const Eigen::VectorXd& state)
 {
-	int root = GetRoot(joint_desc);
-	return root != gInvalidJointID;
-}
-
-tVector cKinTree::GetRootPos(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& state)
-{
-	int root_id = GetRoot(joint_mat);
 	tVector pos = tVector::Zero();
-	int param_offset = GetParamOffset(joint_mat, root_id);
+	int param_offset = gRootParamOffset;
 	pos.segment(0, gPosDim) = state.segment(param_offset, gPosDim);
 	return pos;
 }
 
-void cKinTree::SetRootPos(const Eigen::MatrixXd& joint_mat, const tVector& pos, Eigen::VectorXd& out_state)
+void cKinTree::SetRootPos(const tVector& pos, Eigen::VectorXd& out_state)
 {
-	int root_id = GetRoot(joint_mat);
-	int param_offset = GetParamOffset(joint_mat, root_id);
+	int param_offset = gRootParamOffset;
 	out_state.segment(param_offset, gPosDim) = pos.segment(0, gPosDim);
 }
 
-tQuaternion cKinTree::GetRootRot(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& state)
+tQuaternion cKinTree::GetRootRot(const Eigen::VectorXd& state)
 {
-	int root_id = GetRoot(joint_mat);
-	int param_offset = GetParamOffset(joint_mat, root_id);
+	int param_offset = gRootParamOffset;
 	tQuaternion rot = cMathUtil::VecToQuat(state.segment(param_offset + gPosDim, gRotDim));
 	return rot;
 }
 
-void cKinTree::SetRootRot(const Eigen::MatrixXd& joint_mat, const tQuaternion& rot, Eigen::VectorXd& out_state)
+void cKinTree::SetRootRot(const tQuaternion& rot, Eigen::VectorXd& out_state)
 {
-	int root_id = GetRoot(joint_mat);
-	int param_offset = GetParamOffset(joint_mat, root_id);
+	int param_offset = gRootParamOffset;
 	out_state.segment(param_offset + gPosDim, gRotDim) = cMathUtil::QuatToVec(rot).segment(0, gRotDim);
 }
 
-tVector cKinTree::GetRootVel(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& vel)
+tVector cKinTree::GetRootVel(const Eigen::VectorXd& vel)
 {
-	int root_id = GetRoot(joint_mat);
 	tVector pos = tVector::Zero();
-	int param_offset = GetParamOffset(joint_mat, root_id);
+	int param_offset = gRootParamOffset;
 	pos.segment(0, gPosDim) = vel.segment(param_offset, gPosDim);
 	return pos;
 }
 
-void cKinTree::SetRootVel(const Eigen::MatrixXd& joint_mat, const tVector& vel, Eigen::VectorXd& out_vel)
+void cKinTree::SetRootVel(const tVector& vel, Eigen::VectorXd& out_vel)
 {
-	int root_id = GetRoot(joint_mat);
-	int param_offset = GetParamOffset(joint_mat, root_id);
+	int param_offset = gRootParamOffset;
 	out_vel.segment(param_offset, gPosDim) = vel.segment(0, gPosDim);
 }
 
-tVector cKinTree::GetRootAngVel(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& vel)
+tVector cKinTree::GetRootAngVel(const Eigen::VectorXd& vel)
 {
-	int root_id = GetRoot(joint_mat);
 	tVector ang_vel = tVector::Zero();
-	int param_offset = GetParamOffset(joint_mat, root_id);
+	int param_offset = gRootParamOffset;
 	ang_vel.segment(0, gRotDim) = vel.segment(param_offset + gPosDim, gRotDim);
 	return ang_vel;
 }
 
-void cKinTree::SetRootAngVel(const Eigen::MatrixXd& joint_mat, const tVector& ang_vel, Eigen::VectorXd& out_vel)
+void cKinTree::SetRootAngVel(const tVector& ang_vel, Eigen::VectorXd& out_vel)
 {
-	int root_id = GetRoot(joint_mat);
-	int param_offset = GetParamOffset(joint_mat, root_id);
+	int param_offset = gRootParamOffset;
 	out_vel.segment(param_offset + gPosDim, gRotDim) = ang_vel.segment(0, gRotDim);
 }
 
@@ -615,6 +598,11 @@ int cKinTree::GetNumJoints(const Eigen::MatrixXd& joint_mat)
 	return static_cast<int>(joint_mat.rows());
 }
 
+int cKinTree::GetRootID()
+{
+	return 0;
+}
+
 int cKinTree::GetNumDof(const Eigen::MatrixXd& joint_mat)
 {
 	int num_joints = GetNumJoints(joint_mat);
@@ -624,7 +612,7 @@ int cKinTree::GetNumDof(const Eigen::MatrixXd& joint_mat)
 
 void cKinTree::ApplyStep(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& step, Eigen::VectorXd& out_pose)
 {
-	int root_id = GetRoot(joint_mat);
+	int root_id = GetRootID();
 	int num_joints = cKinTree::GetNumJoints(joint_mat);
 	out_pose += step;
 }
@@ -1024,7 +1012,7 @@ void cKinTree::PostProcessJointMat(Eigen::MatrixXd& out_joint_mat)
 		out_joint_mat(j, eJointDescParamOffset) = offset;
 		offset += curr_size;
 	}
-	int root_id = GetRoot(out_joint_mat);
+	int root_id = GetRootID();
 
 	out_joint_mat(root_id, eJointDescAttachX) = 0;
 	out_joint_mat(root_id, eJointDescAttachY) = 0;
@@ -1219,7 +1207,7 @@ void cKinTree::BuildDefaultPose(const Eigen::MatrixXd& joint_mat, Eigen::VectorX
 
 	int num_joints = GetNumJoints(joint_mat);
 
-	int root_id = GetRoot(joint_mat);
+	int root_id = GetRootID();
 	Eigen::VectorXd root_pose;
 	BuildDefaultPoseRoot(joint_mat, root_pose);
 	SetJointParams(joint_mat, root_id, root_pose, out_pose);
@@ -1261,7 +1249,7 @@ void cKinTree::BuildDefaultVel(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd
 
 	int num_joints = GetNumJoints(joint_mat);
 
-	int root_id = GetRoot(joint_mat);
+	int root_id = GetRootID();
 	Eigen::VectorXd root_pose;
 	BuildDefaultVelRoot(joint_mat, root_pose);
 	SetJointParams(joint_mat, root_id, root_pose, out_vel);
@@ -1316,15 +1304,15 @@ void cKinTree::CalcPoseDiff(const Eigen::MatrixXd& joint_mat, const Eigen::Vecto
 
 tVector cKinTree::CalcRootPosDiff(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose0, const Eigen::VectorXd& pose1)
 {
-	tVector root_pos0 = GetRootPos(joint_mat, pose0);
-	tVector root_pos1 = GetRootPos(joint_mat, pose1);
+	tVector root_pos0 = GetRootPos(pose0);
+	tVector root_pos1 = GetRootPos(pose1);
 	return root_pos1 - root_pos0;
 }
 
 tQuaternion cKinTree::CalcRootRotDiff(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose0, const Eigen::VectorXd& pose1)
 {
-	tQuaternion root_rot0 = GetRootRot(joint_mat, pose0);
-	tQuaternion root_rot1 = GetRootRot(joint_mat, pose1);
+	tQuaternion root_rot0 = GetRootRot(pose0);
+	tQuaternion root_rot1 = GetRootRot(pose1);
 	return cMathUtil::QuatDiff(root_rot0, root_rot1);
 }
 
@@ -1394,15 +1382,15 @@ void cKinTree::CalcVelDiff(const Eigen::MatrixXd& joint_mat, const Eigen::Vector
 
 tVector cKinTree::CalcRootVelDiff(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose0, const Eigen::VectorXd& pose1)
 {
-	tVector root_vel0 = GetRootVel(joint_mat, pose0);
-	tVector root_vel1 = GetRootVel(joint_mat, pose1);
+	tVector root_vel0 = GetRootVel(pose0);
+	tVector root_vel1 = GetRootVel(pose1);
 	return root_vel1 - root_vel0;
 }
 
 tVector cKinTree::CalcRootAngVelDiff(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose0, const Eigen::VectorXd& pose1)
 {
-	tVector root_ang_vel0 = GetRootAngVel(joint_mat, pose0);
-	tVector root_ang_vel1 = GetRootAngVel(joint_mat, pose1);
+	tVector root_ang_vel0 = GetRootAngVel(pose0);
+	tVector root_ang_vel1 = GetRootAngVel(pose1);
 	return root_ang_vel1 - root_ang_vel0;
 }
 
@@ -1485,16 +1473,16 @@ void cKinTree::CalcVel(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& 
 	out_vel.resize(pose0.size());
 
 	int num_joints = GetNumJoints(joint_mat);
-	tVector root_pos0 = GetRootPos(joint_mat, pose0);
-	tVector root_pos1 = GetRootPos(joint_mat, pose1);
+	tVector root_pos0 = GetRootPos(pose0);
+	tVector root_pos1 = GetRootPos(pose1);
 	tVector root_vel = (root_pos1 - root_pos0) / dt;
 
-	tQuaternion root_rot0 = GetRootRot(joint_mat, pose0);
-	tQuaternion root_rot1 = GetRootRot(joint_mat, pose1);
+	tQuaternion root_rot0 = GetRootRot(pose0);
+	tQuaternion root_rot1 = GetRootRot(pose1);
 	tVector root_rot_vel = cMathUtil::CalcQuaternionVel(root_rot0, root_rot1, dt);
 
-	cKinTree::SetRootVel(joint_mat, root_vel, out_vel);
-	cKinTree::SetRootAngVel(joint_mat, root_rot_vel, out_vel);
+	cKinTree::SetRootVel(root_vel, out_vel);
+	cKinTree::SetRootAngVel(root_rot_vel, out_vel);
 
 	for (int j = 1; j < num_joints; ++j)
 	{
@@ -1523,7 +1511,7 @@ void cKinTree::PostProcessPose(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd
 {
 	// mostly to normalize quaternions
 	int num_joints = GetNumJoints(joint_mat);
-	int root_id = GetRoot(joint_mat);
+	int root_id = GetRootID();
 	int root_offset = GetParamOffset(joint_mat, root_id);
 	out_pose.segment(root_offset + gPosDim, gRotDim).normalize();
 
@@ -1541,26 +1529,26 @@ void cKinTree::PostProcessPose(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd
 void cKinTree::LerpPoses(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose0, const Eigen::VectorXd& pose1, double lerp, Eigen::VectorXd& out_pose)
 {
 	int num_joints = GetNumJoints(joint_mat);
-	int root_id = GetRoot(joint_mat);
+	int root_id = GetRootID();
 	int root_offset = GetParamOffset(joint_mat, root_id);
 
 	out_pose.resize(pose0.size());
 	assert(pose0.size() == pose1.size());
 
-	tVector root_pos0 = GetRootPos(joint_mat, pose0);
-	tVector root_pos1 = GetRootPos(joint_mat, pose1);
+	tVector root_pos0 = GetRootPos(pose0);
+	tVector root_pos1 = GetRootPos(pose1);
 	tVector root_pos_lerp = (1 - lerp) * root_pos0 + lerp * root_pos1;
 
-	tQuaternion root_rot0 = GetRootRot(joint_mat, pose0);
-	tQuaternion root_rot1 = GetRootRot(joint_mat, pose1);
+	tQuaternion root_rot0 = GetRootRot(pose0);
+	tQuaternion root_rot1 = GetRootRot(pose1);
 	assert(std::abs(root_rot0.norm() - 1) < 0.000001);
 	assert(std::abs(root_rot1.norm() - 1) < 0.000001);
 
 	tQuaternion root_rot_lerp = root_rot0.slerp(lerp, root_rot1);
 	root_rot_lerp.normalize();
 
-	cKinTree::SetRootPos(joint_mat, root_pos_lerp, out_pose);
-	cKinTree::SetRootRot(joint_mat, root_rot_lerp, out_pose);
+	cKinTree::SetRootPos(root_pos_lerp, out_pose);
+	cKinTree::SetRootRot(root_rot_lerp, out_pose);
 
 	for (int j = 1; j < num_joints; ++j)
 	{
@@ -1583,22 +1571,25 @@ void cKinTree::LerpPoses(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd
 	}
 }
 
+void cKinTree::LerpVels(const Eigen::VectorXd& vel0, const Eigen::VectorXd& vel1, double lerp, Eigen::VectorXd& out_vel)
+{
+	out_vel = (1.0 - lerp) * vel0 + lerp * vel1;
+}
+
 void cKinTree::VelToPoseDiff(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose, const Eigen::VectorXd& vel, Eigen::VectorXd& out_pose_diff)
 {
 	out_pose_diff = vel;
 
 	int num_joints = GetNumJoints(joint_mat);
-	int root_id = GetRoot(joint_mat);
-	int root_offset = GetParamOffset(joint_mat, root_id);
 
-	tVector root_rot_vel = GetRootAngVel(joint_mat, vel);
+	tVector root_rot_vel = GetRootAngVel(vel);
 	root_rot_vel[3] = 0;
-	tQuaternion root_rot = GetRootRot(joint_mat, pose);
+	tQuaternion root_rot = GetRootRot(pose);
 	tMatrix root_diff_mat = cMathUtil::BuildQuaternionDiffMat(root_rot);
 	tVector root_diff = root_diff_mat * root_rot_vel;
 	tQuaternion root_quat = cMathUtil::VecToQuat(root_diff);
 
-	cKinTree::SetRootRot(joint_mat, root_quat, out_pose_diff);
+	cKinTree::SetRootRot(root_quat, out_pose_diff);
 
 	for (int j = 1; j < num_joints; ++j)
 	{
@@ -1618,38 +1609,55 @@ void cKinTree::VelToPoseDiff(const Eigen::MatrixXd& joint_mat, const Eigen::Vect
 	}
 }
 
-double cKinTree::CalcHeading(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose)
+double cKinTree::CalcHeading(const Eigen::VectorXd& pose)
+{
+	tQuaternion root_rot = cKinTree::GetRootRot(pose);
+	double heading = CalcHeading(root_rot);
+	return heading;
+}
+
+double cKinTree::CalcHeading(const tQuaternion& rot)
 {
 	// heading is the direction of the root in the xz plane
 	tVector ref_dir = tVector(1, 0, 0, 0);
-	tQuaternion root_rot = cKinTree::GetRootRot(joint_mat, pose);
-	tVector rot_dir = cMathUtil::QuatRotVec(root_rot, ref_dir);
+	tVector rot_dir = cMathUtil::QuatRotVec(rot, ref_dir);
+
 	double heading = std::atan2(-rot_dir[2], rot_dir[0]);
 	return heading;
 }
 
-tQuaternion cKinTree::CalcHeadingRot(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose)
+tQuaternion cKinTree::CalcHeadingRot(const Eigen::VectorXd& pose)
 {
-	double heading = CalcHeading(joint_mat, pose);
-	return cMathUtil::AxisAngleToQuaternion(tVector(0, 1, 0, 0), heading);
+	double heading = CalcHeading(pose);
+	const tVector axis = tVector(0, 1, 0, 0);
+	tQuaternion heading_rot = cMathUtil::AxisAngleToQuaternion(axis, -heading);
+	return heading_rot;
 }
 
-tMatrix cKinTree::BuildHeadingTrans(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose)
+tQuaternion cKinTree::CalcHeadingRot(const tQuaternion& rot)
 {
-	double heading = CalcHeading(joint_mat, pose);
-	tVector axis = tVector(0, 1, 0, 0);
+	double heading = CalcHeading(rot);
+	const tVector axis = tVector(0, 1, 0, 0);
+	tQuaternion heading_rot = cMathUtil::AxisAngleToQuaternion(axis, -heading);
+	return heading_rot;
+}
+
+tMatrix cKinTree::BuildHeadingTrans(const Eigen::VectorXd& pose)
+{
+	double heading = CalcHeading(pose);
+	const tVector axis = tVector(0, 1, 0, 0);
 	tMatrix mat = cMathUtil::RotateMat(axis, -heading);
 	return mat;
 }
 
-tMatrix cKinTree::BuildOriginTrans(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose)
+tMatrix cKinTree::BuildOriginTrans(const Eigen::VectorXd& pose)
 {
 	// world to origin transform
 	// origin is the point right under the root of the character on the xz plane with x-axis
 	// aligned along the character's heading
-	tVector origin = GetRootPos(joint_mat, pose);
+	tVector origin = GetRootPos(pose);
 	origin[1] = 0;
-	tMatrix rot_mat = BuildHeadingTrans(joint_mat, pose);
+	tMatrix rot_mat = BuildHeadingTrans(pose);
 	tMatrix trans_mat = cMathUtil::TranslateMat(-origin);
 	tMatrix mat = rot_mat * trans_mat;
 	return mat;
@@ -1663,86 +1671,28 @@ void cKinTree::NormalizePoseHeading(const Eigen::MatrixXd& joint_mat, Eigen::Vec
 
 void cKinTree::NormalizePoseHeading(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd& out_pose, Eigen::VectorXd& out_vel)
 {
-	tVector root_pos = GetRootPos(joint_mat, out_pose);
-	tQuaternion root_rot = GetRootRot(joint_mat, out_pose);
+	tVector root_pos = GetRootPos(out_pose);
+	tQuaternion root_rot = GetRootRot(out_pose);
 
 	root_pos[0] = 0;
 	root_pos[2] = 0;
 
-	double heading = CalcHeading(joint_mat, out_pose);
+	double heading = CalcHeading(out_pose);
 	tQuaternion heading_q = cMathUtil::AxisAngleToQuaternion(tVector(0, 1, 0, 0), -heading);
 	root_rot = heading_q * root_rot;
 
-	SetRootPos(joint_mat, root_pos, out_pose);
-	SetRootRot(joint_mat, root_rot, out_pose);
+	SetRootPos(root_pos, out_pose);
+	SetRootRot(root_rot, out_pose);
 
 	if (out_vel.size() > 0)
 	{
-		tVector root_vel = GetRootVel(joint_mat, out_vel);
-		tVector root_ang_vel = GetRootAngVel(joint_mat, out_vel);
+		tVector root_vel = GetRootVel(out_vel);
+		tVector root_ang_vel = GetRootAngVel(out_vel);
 		root_vel = cMathUtil::QuatRotVec(heading_q, root_vel);
 		root_ang_vel = cMathUtil::QuatRotVec(heading_q, root_ang_vel);
 
-		SetRootVel(joint_mat, root_vel, out_vel);
-		SetRootAngVel(joint_mat, root_ang_vel, out_vel);
-	}
-}
-
-void cKinTree::MirrorPoseStance(const Eigen::MatrixXd& joint_mat, const std::vector<int> mirror_joints0, const std::vector<int> mirror_joints1, Eigen::VectorXd& out_pose)
-{
-	// mirrors along xy plane
-	assert(mirror_joints0.size() == mirror_joints1.size());
-	int num_joints = cKinTree::GetNumJoints(joint_mat);
-
-	tQuaternion root_rot = cKinTree::GetRootRot(joint_mat, out_pose);
-	tVector root_pos = cKinTree::GetRootPos(joint_mat, out_pose);
-	root_pos[2] *= -1;
-	root_rot = cMathUtil::MirrorQuaternion(root_rot, cMathUtil::eAxisZ);
-
-	cKinTree::SetRootRot(joint_mat, root_rot, out_pose);
-	cKinTree::SetRootPos(joint_mat, root_pos, out_pose);
-
-	for (int j = 0; j < num_joints; ++j)
-	{
-		cKinTree::eJointType joint_type = cKinTree::GetJointType(joint_mat, j);
-		bool is_root = cKinTree::IsRoot(joint_mat, j);
-		if (!is_root)
-		{
-			int param_offset = cKinTree::GetParamOffset(joint_mat, j);
-			int param_size = cKinTree::GetParamSize(joint_mat, j);
-			auto joint_params = out_pose.segment(param_offset, param_size);
-
-			if (joint_type == cKinTree::eJointTypeRevolute
-				|| joint_type == cKinTree::eJointTypeFixed)
-			{
-			}
-			else if (joint_type == cKinTree::eJointTypeSpherical)
-			{
-				tQuaternion quat = cMathUtil::VecToQuat(joint_params);
-				quat = cMathUtil::MirrorQuaternion(quat, cMathUtil::eAxisZ);
-				joint_params = cMathUtil::QuatToVec(quat);
-			}
-			else
-			{
-				assert(false); // unsupported joint type
-			}
-		}
-	}
-
-	for (size_t i = 0; i < mirror_joints0.size(); ++i)
-	{
-		int id0 = mirror_joints0[i];
-		int id1 = mirror_joints1[i];
-
-		int offset0 = cKinTree::GetParamOffset(joint_mat, id0);
-		int size0 = cKinTree::GetParamSize(joint_mat, id0);
-		int offset1 = cKinTree::GetParamOffset(joint_mat, id1);
-		int size1 = cKinTree::GetParamSize(joint_mat, id1);
-
-		Eigen::VectorXd params0 = out_pose.segment(offset0, size0);
-		Eigen::VectorXd params1 = out_pose.segment(offset1, size1);
-		out_pose.segment(offset0, size0) = params1;
-		out_pose.segment(offset1, size1) = params0;
+		SetRootVel(root_vel, out_vel);
+		SetRootAngVel(root_ang_vel, out_vel);
 	}
 }
 
@@ -1807,8 +1757,8 @@ std::string cKinTree::BuildJointJson(int id, const tJointDesc& joint_desc)
 
 tMatrix cKinTree::ChildParentTransRoot(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& state, int joint_id)
 {
-	tVector offset = GetRootPos(joint_mat, state);
-	tQuaternion rot = GetRootRot(joint_mat, state);
+	tVector offset = GetRootPos(state);
+	tQuaternion rot = GetRootRot(state);
 
 	tMatrix A = BuildAttachTrans(joint_mat, joint_id);
 	tMatrix R = cMathUtil::RotateMat(rot);

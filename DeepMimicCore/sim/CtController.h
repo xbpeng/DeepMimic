@@ -38,21 +38,24 @@ protected:
 	double mUpdateRate;
 	double mCyclePeriod;
 	bool mEnablePhaseInput;
-	bool mEnablePhaseAction;
 	bool mRecordWorldRootPos;
 	bool mRecordWorldRootRot;
 
 	double mPhaseOffset;
 	double mInitTimeOffset;
 
-	Eigen::VectorXd mActionBoundMin;
-	Eigen::VectorXd mActionBoundMax;
+	int mActionSize;
+	Eigen::VectorXi mCtrlParamOffset;
 
 	virtual void ResetParams();
 	virtual int GetPosFeatureDim() const;
 	virtual int GetRotFeatureDim() const;
+	virtual int GetVelFeatureDim() const;
+	virtual int GetAngVelFeatureDim() const;
 
 	virtual bool ParseParams(const Json::Value& json);
+	virtual void InitResources();
+	virtual void BuildCtrlParamOffset(Eigen::VectorXi& out_offset) const;
 
 	virtual void UpdateBuildTau(double time_step, Eigen::VectorXd& out_tau);
 	virtual bool CheckNeedNewAction(double timestep) const;
@@ -64,11 +67,12 @@ protected:
 	virtual int GetStatePhaseSize() const;
 	virtual int GetStatePhaseOffset() const;
 
-	virtual int GetActionPhaseOffset() const;
-	virtual int GetActionPhaseSize() const;
 	virtual int GetActionCtrlOffset() const;
 	virtual int GetActionCtrlSize() const;
 
+	virtual int GetCtrlParamOffset(int joint_id) const;
+	virtual int GetCtrlParamSize(int joint_id) const;
+	
 	virtual void BuildStatePhaseOffsetScale(Eigen::VectorXd& phase_offset, Eigen::VectorXd& phase_scale) const;
 
 	virtual void BuildStatePose(Eigen::VectorXd& out_pose) const;
@@ -78,7 +82,5 @@ protected:
 	virtual void BuildJointActionBounds(int joint_id, Eigen::VectorXd& out_min, Eigen::VectorXd& out_max) const;
 	virtual void BuildJointActionOffsetScale(int joint_id, Eigen::VectorXd& out_offset, Eigen::VectorXd& out_scale) const;
 
-	virtual bool FlipStance() const;
 	virtual int RetargetJointID(int joint_id) const;
-	virtual double GetPhaseRate() const;
 };

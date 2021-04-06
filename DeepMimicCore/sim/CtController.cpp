@@ -8,13 +8,14 @@ cCtController::cCtController() : cDeepMimicCharController()
 	mUpdateRate = 30.0;
 	mCyclePeriod = 1;
 	mEnablePhaseInput = false;
-	mEnablePhaseAction = false;
 	mRecordWorldRootPos = false;
 	mRecordWorldRootRot = false;
 	SetViewDistMax(1);
 
 	mPhaseOffset = 0;
 	mInitTimeOffset = 0;
+
+	mActionSize = 0;
 }
 
 cCtController::~cCtController()
@@ -33,24 +34,7 @@ double cCtController::GetUpdateRate() const
 
 void cCtController::UpdateCalcTau(double timestep, Eigen::VectorXd& out_tau)
 {
-	// use unnormalized phase
-	double prev_phase = 0;
-	if (mEnablePhaseAction)
-	{
-		prev_phase = mTime / mCyclePeriod;
-		prev_phase += mPhaseOffset;
-	}
-
 	cDeepMimicCharController::UpdateCalcTau(timestep, out_tau);
-
-	if (mEnablePhaseAction)
-	{
-		double phase_rate = GetPhaseRate();
-		double tar_phase = prev_phase + timestep * phase_rate;
-		mPhaseOffset = tar_phase - mTime / mCyclePeriod;
-		mPhaseOffset = std::fmod(mPhaseOffset, 1.0);
-	}
-
 	UpdateBuildTau(timestep, out_tau);
 }
 
@@ -63,9 +47,7 @@ int cCtController::GetStateSize() const
 
 int cCtController::GetActionSize() const
 {
-	int a_size = 0;
-	a_size += GetActionPhaseSize();
-	a_size += GetActionCtrlSize();
+	int a_size = mActionSize;
 	return a_size;
 }
 
@@ -93,24 +75,15 @@ void cCtController::BuildActionBounds(Eigen::VectorXd& out_min, Eigen::VectorXd&
 	out_max = Eigen::VectorXd::Zero(action_size);
 
 	int root_id = mChar->GetRootID();
-	int root_size = mChar->GetParamSize(root_id);
 	int num_joints = mChar->GetNumJoints();
-	int ctrl_offset = GetActionCtrlOffset();
-
-	if (mEnablePhaseAction)
-	{
-		int phase_offset = GetActionPhaseOffset();
-		out_min[phase_offset] = -5;
-		out_max[phase_offset] = 5;
-	}
 
 	for (int j = root_id + 1; j < num_joints; ++j)
 	{
 		const cSimBodyJoint& joint = mChar->GetJoint(j);
 		if (joint.IsValid())
 		{
-			int param_offset = mChar->GetParamOffset(j);
-			int param_size = mChar->GetParamSize(j);
+			int param_offset = GetCtrlParamOffset(j);
+			int param_size = GetCtrlParamSize(j);
 
 			if (param_size > 0)
 			{
@@ -120,8 +93,6 @@ void cCtController::BuildActionBounds(Eigen::VectorXd& out_min, Eigen::VectorXd&
 				assert(lim_min.size() == param_size);
 				assert(lim_max.size() == param_size);
 
-				param_offset -= root_size;
-				param_offset += ctrl_offset;
 				out_min.segment(param_offset, param_size) = lim_min;
 				out_max.segment(param_offset, param_size) = lim_max;
 			}
@@ -144,8 +115,20 @@ int cCtController::GetPosFeatureDim() const
 
 int cCtController::GetRotFeatureDim() const
 {
-	int rot_dim = cKinTree::gRotDim;
+	int rot_dim = 2 * cKinTree::gPosDim;
 	return rot_dim;
+}
+
+int cCtController::GetVelFeatureDim() const
+{
+	int vel_dim = cKinTree::gVelDim;
+	return vel_dim;
+}
+
+int cCtController::GetAngVelFeatureDim() const
+{
+	int ang_vel_dim = cKinTree::gAngVelDim;
+	return ang_vel_dim;
 }
 
 double cCtController::GetCyclePeriod() const
@@ -182,11 +165,33 @@ bool cCtController::ParseParams(const Json::Value& json)
 	mUpdateRate = json.get("QueryRate", mUpdateRate).asDouble();
 	mCyclePeriod = json.get("CyclePeriod", mCyclePeriod).asDouble();
 	mEnablePhaseInput = json.get("EnablePhaseInput", mEnablePhaseInput).asBool();
-	mEnablePhaseAction = json.get("EnablePhaseAction", mEnablePhaseAction).asBool();
 	mRecordWorldRootPos = json.get("RecordWorldRootPos", mRecordWorldRootPos).asBool();
 	mRecordWorldRootRot = json.get("RecordWorldRootRot", mRecordWorldRootRot).asBool();
 
 	return succ;
+}
+
+void cCtController::InitResources()
+{
+	int num_joints = mChar->GetNumJoints();
+	BuildCtrlParamOffset(mCtrlParamOffset);
+	mActionSize = GetCtrlParamOffset(num_joints - 1) + GetCtrlParamSize(num_joints - 1);
+
+	cDeepMimicCharController::InitResources();
+}
+
+void cCtController::BuildCtrlParamOffset(Eigen::VectorXi& out_offset) const
+{
+	int num_joints = mChar->GetNumJoints();
+	out_offset.resize(num_joints);
+
+	int offset = GetActionCtrlOffset();
+	for (int j = 0; j < num_joints; ++j)
+	{
+		int curr_size = GetCtrlParamSize(j);
+		out_offset[j] = offset;
+		offset += curr_size;
+	}
 }
 
 void cCtController::UpdateBuildTau(double time_step, Eigen::VectorXd& out_tau)
@@ -237,20 +242,13 @@ void cCtController::BuildActionOffsetScale(Eigen::VectorXd& out_offset, Eigen::V
 	int num_joints = mChar->GetNumJoints();
 	int ctrl_offset = GetActionCtrlOffset();
 
-	if (mEnablePhaseAction)
-	{
-		int phase_offset = GetActionPhaseOffset();
-		out_offset[phase_offset] = -1 / mCyclePeriod;
-		out_scale[phase_offset] = 1;
-	}
-
 	for (int j = root_id + 1; j < num_joints; ++j)
 	{
 		const cSimBodyJoint& joint = mChar->GetJoint(j);
 		if (joint.IsValid())
 		{
-			int param_offset = mChar->GetParamOffset(j);
-			int param_size = mChar->GetParamSize(j);
+			int param_offset = GetCtrlParamOffset(j);
+			int param_size = GetCtrlParamSize(j);
 
 			if (param_size > 0)
 			{
@@ -260,8 +258,6 @@ void cCtController::BuildActionOffsetScale(Eigen::VectorXd& out_offset, Eigen::V
 				assert(curr_offset.size() == param_size);
 				assert(curr_scale.size() == param_size);
 
-				param_offset -= root_size;
-				param_offset += ctrl_offset;
 				out_offset.segment(param_offset, param_size) = curr_offset;
 				out_scale.segment(param_offset, param_size) = curr_scale;
 			}
@@ -306,15 +302,14 @@ int cCtController::GetStatePoseSize() const
 	int pos_dim = GetPosFeatureDim();
 	int rot_dim = GetRotFeatureDim();
 	int size = mChar->GetNumBodyParts() * (pos_dim + rot_dim) + 1; // +1 for root y
-
 	return size;
 }
 
 int cCtController::GetStateVelSize() const
 {
-	int pos_dim = GetPosFeatureDim();
-	int rot_dim = GetRotFeatureDim();
-	int size = mChar->GetNumBodyParts() * (pos_dim + rot_dim - 1);
+	int vel_dim = GetVelFeatureDim();
+	int ang_vel_dim = GetAngVelFeatureDim();
+	int size = mChar->GetNumBodyParts() * (vel_dim + ang_vel_dim);
 	return size;
 }
 
@@ -325,7 +320,8 @@ int cCtController::GetStatePoseOffset() const
 
 int cCtController::GetStatePhaseSize() const
 {
-	return (mEnablePhaseInput) ? 1 : 0;
+	int phase_size = (mEnablePhaseInput) ? 1 : 0;
+	return phase_size;
 }
 
 int cCtController::GetStatePhaseOffset() const
@@ -333,27 +329,36 @@ int cCtController::GetStatePhaseOffset() const
 	return 0;
 }
 
-int cCtController::GetActionPhaseOffset() const
+int cCtController::GetActionCtrlOffset() const
 {
 	return 0;
 }
 
-int cCtController::GetActionPhaseSize() const
-{
-	return (mEnablePhaseAction) ? 1 : 0;
-}
-
-int cCtController::GetActionCtrlOffset() const
-{
-	return GetActionPhaseSize();
-}
 
 int cCtController::GetActionCtrlSize() const
 {
-	int ctrl_size = mChar->GetNumDof();
-	int root_size = mChar->GetParamSize(mChar->GetRootID());
-	ctrl_size -= root_size;
+	int ctrl_size = mActionSize;
 	return ctrl_size;
+}
+
+int cCtController::GetCtrlParamOffset(int joint_id) const
+{
+	int param_offset = mCtrlParamOffset[joint_id];
+	return param_offset;
+}
+
+int cCtController::GetCtrlParamSize(int joint_id) const
+{
+	int param_size = 0;
+	int root_id = mChar->GetRootID();
+
+	if (joint_id != root_id)
+	{
+		const auto& joint_mat = mChar->GetJointMat();
+		param_size = cCtCtrlUtil::GetParamDimTorque(joint_mat, joint_id);
+	}
+
+	return param_size;
 }
 
 void cCtController::BuildStatePhaseOffsetScale(Eigen::VectorXd& phase_offset, Eigen::VectorXd& phase_scale) const
@@ -370,14 +375,11 @@ void cCtController::BuildStatePose(Eigen::VectorXd& out_pose) const
 	tMatrix origin_trans = mChar->BuildOriginTrans();
 	tQuaternion origin_quat = cMathUtil::RotMatToQuaternion(origin_trans);
 
-	bool flip_stance = FlipStance();
-	if (flip_stance)
-	{
-		origin_trans.row(2) *= -1; // reflect z
-	}
-
 	tVector root_pos = mChar->GetRootPos();
+	double ground_h = SampleGroundHeight(root_pos);
+
 	tVector root_pos_rel = root_pos;
+	root_pos_rel[1] -= ground_h;
 
 	root_pos_rel[3] = 1;
 	root_pos_rel = origin_trans * root_pos_rel;
@@ -385,16 +387,13 @@ void cCtController::BuildStatePose(Eigen::VectorXd& out_pose) const
 
 	out_pose = Eigen::VectorXd::Zero(GetStatePoseSize());
 	out_pose[0] = root_pos_rel[1];
+
 	int num_parts = mChar->GetNumBodyParts();
 	int root_id = mChar->GetRootID();
 
 	int pos_dim = GetPosFeatureDim();
 	int rot_dim = GetRotFeatureDim();
 
-	tQuaternion mirror_inv_origin_quat = origin_quat.conjugate();
-	mirror_inv_origin_quat = cMathUtil::MirrorQuaternion(mirror_inv_origin_quat, cMathUtil::eAxisZ);
-
-	int idx = 1;
 	for (int i = 0; i < num_parts; ++i)
 	{
 		int part_id = RetargetJointID(i);
@@ -402,17 +401,9 @@ void cCtController::BuildStatePose(Eigen::VectorXd& out_pose) const
 		{
 			const auto& curr_part = mChar->GetBodyPart(part_id);
 			tVector curr_pos = curr_part->GetPos();
+			curr_pos[1] -= ground_h;
 
-			if (mRecordWorldRootPos && i == root_id)
-			{
-				if (flip_stance)
-				{
-					curr_pos = cMathUtil::QuatRotVec(origin_quat, curr_pos);
-					curr_pos[2] = -curr_pos[2];
-					curr_pos = cMathUtil::QuatRotVec(mirror_inv_origin_quat, curr_pos);
-				}
-			}
-			else
+			if (!mRecordWorldRootPos || i != root_id)
 			{
 				curr_pos[3] = 1;
 				curr_pos = origin_trans * curr_pos;
@@ -420,37 +411,22 @@ void cCtController::BuildStatePose(Eigen::VectorXd& out_pose) const
 				curr_pos[3] = 0;
 			}
 
-			out_pose.segment(idx, pos_dim) = curr_pos.segment(0, pos_dim);
-			idx += pos_dim;
+			int pos_idx = (pos_dim + rot_dim) * i + 1;
+			out_pose.segment(pos_idx, pos_dim) = curr_pos.segment(0, pos_dim);
 
 			tQuaternion curr_quat = curr_part->GetRotation();
-			if (mRecordWorldRootRot && i == root_id)
-			{
-				if (flip_stance)
-				{
-					curr_quat = origin_quat * curr_quat;
-					curr_quat = cMathUtil::MirrorQuaternion(curr_quat, cMathUtil::eAxisZ);
-					curr_quat = mirror_inv_origin_quat * curr_quat;
-				}
-			}
-			else
+			if (!mRecordWorldRootRot || (i != root_id))
 			{
 				curr_quat = origin_quat * curr_quat;
-				if (flip_stance)
-				{
-					curr_quat = cMathUtil::MirrorQuaternion(curr_quat, cMathUtil::eAxisZ);
-				}
 			}
 
-			if (curr_quat.w() < 0)
-			{
-				curr_quat.w() *= -1;
-				curr_quat.x() *= -1;
-				curr_quat.y() *= -1;
-				curr_quat.z() *= -1;
-			}
-			out_pose.segment(idx, rot_dim) = cMathUtil::QuatToVec(curr_quat).segment(0, rot_dim);
-			idx += rot_dim;
+			tVector curr_rot_norm;
+			tVector curr_rot_tan;
+			cMathUtil::CalcNormalTangent(curr_quat, curr_rot_norm, curr_rot_tan);
+
+			int rot_idx = (pos_dim + rot_dim) * i + 1 + pos_dim;
+			out_pose.segment(rot_idx, rot_dim / 2) = curr_rot_norm.segment(0, rot_dim / 2);
+			out_pose.segment(rot_idx + rot_dim / 2, rot_dim / 2) = curr_rot_tan.segment(0, rot_dim / 2);
 		}
 	}
 }
@@ -461,20 +437,11 @@ void cCtController::BuildStateVel(Eigen::VectorXd& out_vel) const
 	tMatrix origin_trans = mChar->BuildOriginTrans();
 	tQuaternion origin_quat = cMathUtil::RotMatToQuaternion(origin_trans);
 
-	bool flip_stance = FlipStance();
-	if (flip_stance)
-	{
-		origin_trans.row(2) *= -1; // reflect z
-	}
-
-	int pos_dim = GetPosFeatureDim();
-	int rot_dim = GetRotFeatureDim();
+	int vel_dim = GetVelFeatureDim();
+	int ang_vel_dim = GetAngVelFeatureDim();
 
 	out_vel = Eigen::VectorXd::Zero(GetStateVelSize());
 
-	tQuaternion mirror_inv_origin_quat = origin_quat.conjugate();
-	mirror_inv_origin_quat = cMathUtil::MirrorQuaternion(mirror_inv_origin_quat, cMathUtil::eAxisZ);
-	
 	int idx = 0;
 	for (int i = 0; i < num_parts; ++i)
 	{
@@ -484,45 +451,22 @@ void cCtController::BuildStateVel(Eigen::VectorXd& out_vel) const
 		const auto& curr_part = mChar->GetBodyPart(part_id);
 		tVector curr_vel = curr_part->GetLinearVelocity();
 
-		if (mRecordWorldRootRot && i == root_id)
-		{
-			if (flip_stance)
-			{
-				curr_vel = cMathUtil::QuatRotVec(origin_quat, curr_vel);
-				curr_vel[2] = -curr_vel[2];
-				curr_vel = cMathUtil::QuatRotVec(mirror_inv_origin_quat, curr_vel);
-			}
-		}
-		else
+		if (!mRecordWorldRootRot || i != root_id)
 		{
 			curr_vel = origin_trans * curr_vel;
 		}
 
-		out_vel.segment(idx, pos_dim) = curr_vel.segment(0, pos_dim);
-		idx += pos_dim;
-
+		int vel_idx = (vel_dim + ang_vel_dim) * i;
+		out_vel.segment(vel_idx, vel_dim) = curr_vel.segment(0, vel_dim);
+		
 		tVector curr_ang_vel = curr_part->GetAngularVelocity();
-		if (mRecordWorldRootRot && i == root_id)
-		{
-			if (flip_stance)
-			{
-				curr_ang_vel = cMathUtil::QuatRotVec(origin_quat, curr_ang_vel);
-				curr_ang_vel[2] = -curr_ang_vel[2];
-				curr_ang_vel = -curr_ang_vel;
-				curr_ang_vel = cMathUtil::QuatRotVec(mirror_inv_origin_quat, curr_ang_vel);
-			}
-		}
-		else
+		if (!mRecordWorldRootRot || i != root_id)
 		{
 			curr_ang_vel = origin_trans * curr_ang_vel;
-			if (flip_stance)
-			{
-				curr_ang_vel = -curr_ang_vel;
-			}
 		}
 
-		out_vel.segment(idx, rot_dim - 1) = curr_ang_vel.segment(0, rot_dim - 1);
-		idx += rot_dim - 1;
+		int ang_vel_idx = (vel_dim + ang_vel_dim) * i + vel_dim;
+		out_vel.segment(ang_vel_idx, ang_vel_dim) = curr_ang_vel.segment(0, ang_vel_dim);
 	}
 }
 
@@ -545,24 +489,7 @@ void cCtController::BuildJointActionOffsetScale(int joint_id, Eigen::VectorXd& o
 	cCtCtrlUtil::BuildOffsetScaleTorque(joint_mat, joint_id, out_offset, out_scale);
 }
 
-bool cCtController::FlipStance() const
-{
-	return false;
-}
-
 int cCtController::RetargetJointID(int joint_id) const
 {
 	return joint_id;
-}
-
-double cCtController::GetPhaseRate() const
-{
-	assert(mEnablePhaseAction);
-	double phase_rate = 0;
-	if (mEnablePhaseAction)
-	{
-		int phase_offset = GetActionPhaseOffset();
-		phase_rate = mAction[phase_offset];
-	}
-	return phase_rate;
 }

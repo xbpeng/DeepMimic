@@ -52,18 +52,18 @@ void cMeshUtil::BuildDrawMesh(const float* pos_data, int pos_size, const int* id
 		normal.normalize();
 		for (int i = 0; i < gNormDim; ++i)
 		{
-			norm_data[i0 * gPosDim + i] += normal[i];
-			norm_data[i1 * gPosDim + i] += normal[i];
-			norm_data[i2 * gPosDim + i] += normal[i];
+			norm_data[i0 * gPosDim + i] += static_cast<float>(normal[i]);
+			norm_data[i1 * gPosDim + i] += static_cast<float>(normal[i]);
+			norm_data[i2 * gPosDim + i] += static_cast<float>(normal[i]);
 		}
 	}
 
 	for (int v = 0; v < num_verts; ++v)
 	{
-		double len = 0;
+		float len = 0;
 		for (int i = 0; i < gNormDim; ++i)
 		{
-			double n_val = norm_data[v * gNormDim + i];
+			float n_val = norm_data[v * gNormDim + i];
 			len += n_val * n_val;
 		}
 
@@ -155,16 +155,16 @@ void cMeshUtil::ExpandFaces(const cDrawMesh& mesh, std::shared_ptr<cDrawMesh>& o
 
 		for (int i = 0; i < gPosDim; ++i)
 		{
-			new_pos_data[i0 * gPosDim + i] = v0.mPosition[i];
-			new_pos_data[i1 * gPosDim + i] = v1.mPosition[i];
-			new_pos_data[i2 * gPosDim + i] = v2.mPosition[i];
+			new_pos_data[i0 * gPosDim + i] = static_cast<float>(v0.mPosition[i]);
+			new_pos_data[i1 * gPosDim + i] = static_cast<float>(v1.mPosition[i]);
+			new_pos_data[i2 * gPosDim + i] = static_cast<float>(v2.mPosition[i]);
 		}
 		
 		for (int i = 0; i < gNormDim; ++i)
 		{
-			new_norm_data[i0 * gNormDim + i] = normal[i];
-			new_norm_data[i1 * gNormDim + i] = normal[i];
-			new_norm_data[i2 * gNormDim + i] = normal[i];
+			new_norm_data[i0 * gNormDim + i] = static_cast<float>(normal[i]);
+			new_norm_data[i1 * gNormDim + i] = static_cast<float>(normal[i]);
+			new_norm_data[i2 * gNormDim + i] = static_cast<float>(normal[i]);
 		}
 
 		for (int i = 0; i < gCoordDim; ++i)

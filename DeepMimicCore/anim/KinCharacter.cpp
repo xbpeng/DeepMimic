@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <functional>
 #include "util/FileUtil.h"
+#include "anim/MotionController.h"
 
 const double gDiffTimeStep = 1 / 600.0;
 
@@ -9,7 +10,6 @@ cKinCharacter::tParams::tParams()
 {
 	mID = gInvalidIdx;
 	mCharFile = "";
-	mMotionFile = "";
 	mOrigin.setZero();
 	mLoadDrawShapes = true;
 }
@@ -18,7 +18,6 @@ cKinCharacter::cKinCharacter()
 {
 	mOrigin.setZero();
 	mOriginRot.setIdentity();
-	mCycleRootDelta.setZero();
 }
 
 cKinCharacter::~cKinCharacter()
@@ -28,14 +27,11 @@ cKinCharacter::~cKinCharacter()
 bool cKinCharacter::Init(const tParams& params)
 {
 	mID = params.mID;
+	mOrigin.setZero();
+
 	bool succ = cCharacter::Init(params.mCharFile, params.mLoadDrawShapes);
 	if (succ)
 	{
-		if (params.mMotionFile != "")
-		{
-			LoadMotion(params.mMotionFile);
-		}
-
 		if (params.mStateFile != "")
 		{
 			bool succ_state = ReadState(params.mStateFile);
@@ -59,123 +55,150 @@ bool cKinCharacter::Init(const tParams& params)
 	{
 		printf("Failed to build character from char_file: %s\n", params.mCharFile.c_str());
 	}
+
 	return succ;
 }
 
 void cKinCharacter::Clear()
 {
 	cCharacter::Clear();
-	mMotion.Clear();
+
+	if (HasController())
+	{
+		mController->Clear();
+	}
 }
 
 void cKinCharacter::Update(double time_step)
 {
 	cCharacter::Update(time_step);
-	mTime += time_step;
-	Pose(mTime);
+
+	if (HasController())
+	{
+		mController->Update(time_step);
+	}
+	
+	Pose();
 }
 
 void cKinCharacter::Reset()
 {
 	cCharacter::Reset();
+	if (HasController())
+	{
+		mController->Reset();
+	}
+	Pose();
 }
 
 bool cKinCharacter::LoadMotion(const std::string& motion_file)
 {
-	cMotion::tParams motion_params;
-	motion_params.mMotionFile = motion_file;
-	motion_params.mBlendFunc = std::bind(&cKinCharacter::BlendFrames, this,
-											std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
-											std::placeholders::_4);
-	motion_params.mMirrorFunc = std::bind(&cKinCharacter::MirrorFrame, this,
-											std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-	motion_params.mVelFunc = std::bind(&cKinCharacter::CalcFrameVel, this,
-											std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,
-											std::placeholders::_4);
-	motion_params.mPostProcessFunc = std::bind(&cKinCharacter::PostProcessFrame, this, std::placeholders::_1);
-	bool succ = mMotion.Load(motion_params);
-
-	if (succ)
-	{
-		int char_dof = GetNumDof();
-		int motion_dof = mMotion.GetNumDof();
-
-		if (char_dof != motion_dof)
-		{
-			printf("DOF mismatch, char dof: %i, motion dof: %i\n", char_dof, motion_dof);
-			mMotion.Clear();
-			succ = false;
-		}
-	}
-
-	if (succ)
-	{
-		mCycleRootDelta = CalcCycleRootDelta();
-		Pose(mTime);
-		mPose0 = GetPose();
-		mVel0 = GetVel();
-	}
-
-	if (!succ)
-	{
-		printf("Failed to load motion from: %s\n", motion_file.c_str());
-	}
+	bool succ = true;
+	std::shared_ptr<cMotionController> ctrl = std::shared_ptr<cMotionController>(new cMotionController());
+	ctrl->Init(this, motion_file);
+	SetController(ctrl);
 	return succ;
 }
 
-const cMotion& cKinCharacter::GetMotion() const
+const cMotion* cKinCharacter::GetMotion() const
 {
-	return mMotion;
+	const cMotion* motion = nullptr;
+	if (HasController())
+	{
+		motion = &(mController->GetMotion());
+	}
+	return motion;
+}
+ 
+cMotion* cKinCharacter::GetMotion()
+{
+	cMotion* motion = nullptr;
+	if (HasController())
+	{
+		motion = &(mController->GetMotion());
+	}
+	return motion;
 }
 
 double cKinCharacter::GetMotionDuration() const
 {
-	if (mMotion.IsValid())
+	double dur = 0;
+	if (HasController())
 	{
-		return mMotion.GetDuration();
+		dur = mController->GetMotionDuration();
 	}
-	return 0;
+	return dur;
 }
 
-void cKinCharacter::SetMotionDuration(double dur)
+void cKinCharacter::ChangeMotionDuration(double dur)
 {
-	return mMotion.SetDuration(dur);
+	if (HasController())
+	{
+		mController->ChangeMotionDuration(dur);
+	}
+}
+
+bool cKinCharacter::EnableMotionLoop() const
+{
+	bool loop = false;
+	if (HasController())
+	{
+		loop = mController->EnableMotionLoop();
+	}
+	return loop;
+}
+
+int cKinCharacter::GetNumMotionFrames() const
+{
+	int num_frames = 0;
+	if (HasController())
+	{
+		num_frames = mController->GetNumMotionFrames();
+	}
+	return num_frames;
 }
 
 void cKinCharacter::SetTime(double time)
 {
-	mTime = time;
+	if (HasController())
+	{
+		mController->SetTime(time);
+	}
 }
 
 double cKinCharacter::GetTime() const
 {
-	return mTime;
+	double time = 0;
+	if (HasController())
+	{
+		time = mController->GetTime();
+	}
+	return time;
 }
 
 int cKinCharacter::GetCycle() const
 {
 	int cycle = 0;
-	if (mMotion.EnableLoop())
+	if (HasController())
 	{
-		double phase = mTime / mMotion.GetDuration();
-		cycle = static_cast<int>(std::floor(phase));
+		cycle = mController->GetCycle();
 	}
 	return cycle;
 }
 
 double cKinCharacter::GetPhase() const
 {
-	double phase = mTime / mMotion.GetDuration();
-	if (mMotion.EnableLoop())
+	double phase = 0;
+	if (HasController())
 	{
-		phase -= static_cast<int>(phase);
-		phase = (phase < 0) ? (1 + phase) : phase;
-	}
-	else
-	{
-		phase = cMathUtil::Clamp(phase, 0.0, 1.0);
+		phase = mController->GetPhase();
 	}
 	return phase;
+}
+
+void cKinCharacter::Pose()
+{
+	Pose(GetTime());
 }
 
 void cKinCharacter::Pose(double time)
@@ -189,12 +212,25 @@ void cKinCharacter::Pose(double time)
 
 void cKinCharacter::BuildAcc(Eigen::VectorXd& out_acc) const
 {
-	CalcAcc(mTime, out_acc);
+	CalcAcc(GetTime(), out_acc);
 }
 
-bool cKinCharacter::HasMotion() const
+cMotion::tFrame cKinCharacter::GetMotionFrame(int f) const
 {
-	return mMotion.IsValid();
+	if (HasController())
+	{
+		return mController->GetMotionFrame(f);
+	}
+	return mPose;
+}
+
+cMotion::tFrame cKinCharacter::GetMotionFrameVel(int f) const
+{
+	if (HasController())
+	{
+		return mController->GetMotionFrameVel(f);
+	}
+	return mVel;
 }
 
 void cKinCharacter::SetRootPos(const tVector& pos)
@@ -227,13 +263,13 @@ void cKinCharacter::MoveOrigin(const tVector& delta)
 {
 	mOrigin += delta;
 
-	tVector root0 = cKinTree::GetRootPos(mJointMat, mPose0);
+	tVector root0 = cKinTree::GetRootPos(mPose0);
 	root0 += delta;
-	cKinTree::SetRootPos(mJointMat, root0, mPose0);
+	cKinTree::SetRootPos(root0, mPose0);
 
-	tVector root = cKinTree::GetRootPos(mJointMat, mPose);
+	tVector root = cKinTree::GetRootPos(mPose);
 	root += delta;
-	cKinTree::SetRootPos(mJointMat, root, mPose);
+	cKinTree::SetRootPos(root, mPose);
 }
 
 const tQuaternion& cKinCharacter::GetOriginRot() const
@@ -258,95 +294,110 @@ void cKinCharacter::RotateOrigin(const tQuaternion& rot)
 	root_pos_delta = cMathUtil::QuatRotVec(rot, root_pos_delta);
 	mOrigin = root_pos + root_pos_delta;
 
-	tQuaternion root_rot0 = cKinTree::GetRootRot(mJointMat, mPose0);
+	tQuaternion root_rot0 = cKinTree::GetRootRot(mPose0);
 	root_rot0 = rot * root_rot0;
 	root_rot0.normalize();
-	cKinTree::SetRootRot(mJointMat, root_rot0, mPose0);
+	cKinTree::SetRootRot(root_rot0, mPose0);
 
-	tQuaternion root_rot = cKinTree::GetRootRot(mJointMat, mPose);
+	tQuaternion root_rot = cKinTree::GetRootRot(mPose);
 	root_rot = rot * root_rot;
 	root_rot.normalize();
-	cKinTree::SetRootRot(mJointMat, root_rot, mPose);
+	cKinTree::SetRootRot(root_rot, mPose);
 
-	tVector vel0 = cKinTree::GetRootVel(mJointMat, mVel0);
+	tVector vel0 = cKinTree::GetRootVel(mVel0);
 	vel0 = cMathUtil::QuatRotVec(rot, vel0);
-	cKinTree::SetRootVel(mJointMat, vel0, mVel0);
+	cKinTree::SetRootVel(vel0, mVel0);
 
-	tVector vel = cKinTree::GetRootVel(mJointMat, mVel);
+	tVector vel = cKinTree::GetRootVel(mVel);
 	vel = cMathUtil::QuatRotVec(rot, vel);
-	cKinTree::SetRootVel(mJointMat, vel, mVel);
+	cKinTree::SetRootVel(vel, mVel);
 
-	tVector ang_vel0 = cKinTree::GetRootAngVel(mJointMat, mVel0);
+	tVector ang_vel0 = cKinTree::GetRootAngVel(mVel0);
 	ang_vel0 = cMathUtil::QuatRotVec(rot, ang_vel0);
-	cKinTree::SetRootAngVel(mJointMat, ang_vel0, mVel0);
+	cKinTree::SetRootAngVel(ang_vel0, mVel0);
 
-	tVector ang_vel = cKinTree::GetRootAngVel(mJointMat, mVel);
+	tVector ang_vel = cKinTree::GetRootAngVel(mVel);
 	ang_vel = cMathUtil::QuatRotVec(rot, ang_vel);
-	cKinTree::SetRootAngVel(mJointMat, ang_vel, mVel);
+	cKinTree::SetRootAngVel(ang_vel, mVel);
 }
 
-void cKinCharacter::ResetParams()
-{ 
-	cCharacter::ResetParams();
-	mTime = 0;
+void cKinCharacter::SetController(const std::shared_ptr<cKinController>& ctrl)
+{
+	RemoveController();
+	mController = ctrl;
+
+	Pose();
+	mPose0 = GetPose();
+	mVel0 = GetVel();
+}
+
+const std::shared_ptr<cKinController>& cKinCharacter::GetController() const
+{
+	return mController;
+}
+
+void cKinCharacter::RemoveController()
+{
+	if (HasController())
+	{
+		mController.reset();
+	}
+}
+
+bool cKinCharacter::HasController() const
+{
+	return mController != nullptr;
 }
 
 tVector cKinCharacter::GetCycleRootDelta() const
 {
-	tVector delta = cMathUtil::QuatRotVec(mOriginRot, mCycleRootDelta);
-	return delta;
-}
-
-tVector cKinCharacter::CalcCycleRootDelta() const
-{
-	int num_frames = mMotion.GetNumFrames();
-	Eigen::VectorXd frame_beg = mMotion.GetFrame(0);
-	Eigen::VectorXd  frame_end = mMotion.GetFrame(num_frames - 1);
-
-	tVector root_pos_beg = cKinTree::GetRootPos(mJointMat, frame_beg);
-	tVector root_pos_end = cKinTree::GetRootPos(mJointMat, frame_end);
-
-	tVector delta = root_pos_end - root_pos_beg;
+	tVector delta = tVector::Zero();
+	const cMotionController* ctrl = dynamic_cast<cMotionController*>(mController.get());
+	if (ctrl != nullptr)
+	{
+		delta = ctrl->GetCycleRootDelta();
+	}
 	return delta;
 }
 
 void cKinCharacter::CalcPose(double time, Eigen::VectorXd& out_pose) const
 {
 	tVector root_delta = tVector::Zero();
-	tQuaternion root_delta_rot = tQuaternion::Identity();
 
-	if (HasMotion())
+	if (HasController())
 	{
-		mMotion.CalcFrame(time, out_pose);
-		if (mMotion.EnableLoop())
-		{
-			int cycle_count = mMotion.CalcCycleCount(time);
-			root_delta = cycle_count * mCycleRootDelta;
-		}
+		mController->CalcPose(time, out_pose);
+
+		tVector root_pos = cKinTree::GetRootPos(out_pose);
+		tQuaternion root_rot = cKinTree::GetRootRot(out_pose);
+		root_rot = mOriginRot * root_rot;
+		root_rot = cMathUtil::StandardizeQuat(root_rot);
+
+		root_pos = cMathUtil::QuatRotVec(mOriginRot, root_pos);
+		root_pos += mOrigin;
+
+		cKinTree::SetRootPos(root_pos, out_pose);
+		cKinTree::SetRootRot(root_rot, out_pose);
 	}
 	else
 	{
 		out_pose = mPose0;
 	}
-
-	tVector root_pos = cKinTree::GetRootPos(mJointMat, out_pose);
-	tQuaternion root_rot = cKinTree::GetRootRot(mJointMat, out_pose);
-
-	root_delta_rot = mOriginRot * root_delta_rot;
-	root_rot = root_delta_rot * root_rot;
-	root_pos += root_delta;
-	root_pos = cMathUtil::QuatRotVec(root_delta_rot, root_pos);
-	root_pos += mOrigin;
-
-	cKinTree::SetRootPos(mJointMat, root_pos, out_pose);
-	cKinTree::SetRootRot(mJointMat, root_rot, out_pose);
 }
 
 void cKinCharacter::CalcVel(double time, Eigen::VectorXd& out_vel) const
 {
-	if (HasMotion())
+	if (HasController())
 	{
-		mMotion.CalcFrameVel(time, out_vel);
+		mController->CalcVel(time, out_vel);
+
+		tVector root_vel = cKinTree::GetRootVel(out_vel);
+		tVector root_ang_vel = cKinTree::GetRootAngVel(out_vel);
+		root_vel = cMathUtil::QuatRotVec(mOriginRot, root_vel);
+		root_ang_vel = cMathUtil::QuatRotVec(mOriginRot, root_ang_vel);
+
+		cKinTree::SetRootVel(root_vel, out_vel);
+		cKinTree::SetRootAngVel(root_ang_vel, out_vel);
 	}
 	else
 	{
@@ -366,11 +417,10 @@ void cKinCharacter::CalcAcc(double time, Eigen::VectorXd& out_acc) const
 bool cKinCharacter::IsMotionOver() const
 {
 	bool over = true;
-	if (HasMotion())
+	if (HasController())
 	{
-		over = mMotion.IsOver(mTime);
+		over = mController->IsMotionOver();
 	}
-
 	return over;
 }
 
@@ -379,10 +429,9 @@ void cKinCharacter::BlendFrames(const cMotion::tFrame* a, const cMotion::tFrame*
 	cKinTree::LerpPoses(mJointMat, *a, *b, lerp, *out_frame);
 }
 
-void cKinCharacter::MirrorFrame(const std::vector<int>* right_joints, const std::vector<int>* left_joints, cMotion::tFrame* out_frame) const
+void cKinCharacter::BlendVel(const Eigen::VectorXd* a, const Eigen::VectorXd* b, double lerp, Eigen::VectorXd* out_vel) const
 {
-	const auto& joint_mat = GetJointMat();
-	cKinTree::MirrorPoseStance(joint_mat, *left_joints, *right_joints, *out_frame);
+	cKinTree::LerpVels(*a, *b, lerp, *out_vel);
 }
 
 void cKinCharacter::CalcFrameVel(const cMotion::tFrame* a, const cMotion::tFrame* b, double timestep, cMotion::tFrame* out_vel) const
@@ -391,7 +440,7 @@ void cKinCharacter::CalcFrameVel(const cMotion::tFrame* a, const cMotion::tFrame
 	cKinTree::CalcVel(joint_mat, *a, *b, timestep, *out_vel);
 }
 
-void cKinCharacter::PostProcessFrame(cMotion::tFrame* out_frame) const
+void cKinCharacter::PostProcessPose(cMotion::tFrame* out_frame) const
 {
 	const auto& joint_mat = GetJointMat();
 	cKinTree::PostProcessPose(joint_mat, *out_frame);

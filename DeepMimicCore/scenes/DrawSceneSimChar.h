@@ -81,6 +81,7 @@ protected:
 	virtual void ApplyUIForce(double time_step);
 
 	virtual void DrawObjs() const;
+	virtual void DrawObj(int obj_id) const;
 	virtual void DrawMisc() const;
 
 	virtual void DrawCoM() const;

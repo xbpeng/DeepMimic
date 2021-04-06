@@ -25,6 +25,7 @@ const double gDegreesToRadians = 1.0 / gRadiansToDegrees;
 const tVector gGravity = tVector(0, -9.8, 0, 0);
 const double gInchesToMeters = 0.0254;
 const double gFeetToMeters = 0.3048;
+const int gExpMapDim = 3;
 
 class cMathUtil
 {
@@ -44,6 +45,7 @@ public:
 	static double Lerp(double t, double val0, double val1);
 
 	static double NormalizeAngle(double theta);
+	static tQuaternion StandardizeQuat(const tQuaternion& quat);
 
 	// rand number
 	static double RandDouble();
@@ -99,6 +101,12 @@ public:
 	static tQuaternion VecDiffQuat(const tVector& v0, const tVector& v1);
 	static tVector QuatRotVec(const tQuaternion& q, const tVector& dir);
 	static tQuaternion MirrorQuaternion(const tQuaternion& q, eAxis axis);
+
+	static void ExpMapToAxisAngle(const tVector& exp_map, tVector& out_axis, double& out_theta);
+	static tQuaternion ExpMapToQuaternion(const tVector& exp_map);
+	static tVector AxisAngleToExpMap(const tVector& axis, double theta);
+	static tVector QuaternionToExpMap(const tQuaternion& q);
+	static void CalcNormalTangent(const tQuaternion& q, tVector& out_norm, tVector& out_tan);
 
 	static double Sign(double val);
 	static int Sign(int val);

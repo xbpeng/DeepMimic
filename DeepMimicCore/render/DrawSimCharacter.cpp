@@ -74,7 +74,7 @@ void cDrawSimCharacter::DrawBodyVel(const cSimCharacter& character, double lin_v
 
 void cDrawSimCharacter::DrawInfoValLog(const cCircularBuffer<double>& val_log, const cCamera& cam)
 {
-	const double min_val = -1;
+	const double min_val = 0;
 	const double max_val = 1;
 
 	int num_val = static_cast<int>(val_log.GetSize());

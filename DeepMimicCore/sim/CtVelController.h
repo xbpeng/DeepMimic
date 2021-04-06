@@ -14,6 +14,7 @@ public:
 	
 protected:
 	
+	virtual int GetCtrlParamSize(int joint_id) const;
 	virtual void SetupPDControllers(const Json::Value& json, const tVector& gravity);
 	virtual void ApplyAction(const Eigen::VectorXd& action);
 	virtual void BuildJointActionBounds(int joint_id, Eigen::VectorXd& out_min, Eigen::VectorXd& out_max) const;

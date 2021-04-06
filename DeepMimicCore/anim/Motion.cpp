@@ -8,17 +8,19 @@
 const double gMinTime = 0;
 
 // Json keys
-const std::string cMotion::gFrameKey = "Frames";
-const std::string cMotion::gLoopKey = "Loop";
-const std::string cMotion::gVelFilterCutoffKey = "VelFilterCutoff";
+const std::string gFrameKey = "Frames";
+const std::string gLoopKey = "Loop";
+const std::string gVelFilterCutoffKey = "VelFilterCutoff";
+const std::string gCycleSyncRootPosKey = "CycleSyncRootPos";
+const std::string gCycleSyncRootRotKey = "CycleSyncRootRot";
+const std::string gCycleSyncRootHeightKey = "CycleSyncRootHeight";
 const std::string gRightJointsKey = "RightJoints";
 const std::string gLeftJointsKey = "LeftJoints";
 
 const std::string gLoopStr[cMotion::eLoopMax] =
 {
 	"none",
-	"wrap",
-	"mirror"
+	"wrap"
 };
 
 std::string cMotion::BuildFrameJson(const Eigen::VectorXd& frame)
@@ -27,23 +29,63 @@ std::string cMotion::BuildFrameJson(const Eigen::VectorXd& frame)
 	return json;
 }
 
+double cMotion::CalcPhase(double time, double period, double phase_offset, bool loop)
+{
+	double phase = time / period;
+	phase += phase_offset;
+
+	if (loop)
+	{
+		phase -= std::floor(phase);
+	}
+	else
+	{
+		phase = cMathUtil::Clamp(phase, 0.0, 1.0);
+	}
+
+	return phase;
+}
+
+double cMotion::CalcFixPhaseTimeOffset(double time, double prev_period, double new_period,
+										double time_offset, double phase_offset, bool loop)
+{
+	double prev_phase = CalcPhase(time + time_offset, prev_period, phase_offset, loop);
+	double new_phase = CalcPhase(time + time_offset, new_period, phase_offset, loop);
+
+	double dphase = prev_phase - new_phase;
+	double dt = dphase * new_period;
+
+	double new_time_offset = time_offset + dt;
+	if (new_time_offset < 0)
+	{
+		new_time_offset += new_period;
+	}
+	assert(new_time_offset >= 0);
+
+	return new_time_offset;
+}
+
 cMotion::tParams::tParams()
 {
 	mMotionFile = "";
 	mBlendFunc = nullptr;
-	mMirrorFunc = nullptr;
 	mVelFunc = nullptr;
 	mPostProcessFunc = nullptr;
-
-	mRightJoints.clear();
-	mLeftJoints.clear();
 };
 
 cMotion::cMotion()
 {
 	Clear();
 	mLoop = eLoopNone;
-	mVelFilterCutoff = 6; // cutoff 6 Hz
+	mCycleSyncRootPos = true;
+	mCycleSyncRootRot = false;
+	mCycleSyncRootHeight = false;
+
+	mCycleDeltaRootPos.setZero();
+	mCycleDeltaRootHeading = 0.0;
+
+	mFrameTimes.resize(0);
+	mFrames.resize(0, 0);
 }
 
 cMotion::~cMotion()
@@ -53,9 +95,9 @@ cMotion::~cMotion()
 
 void cMotion::Clear()
 {
+	mLoop = eLoopNone;
 	mFrames.resize(0, 0);
 	mFrameVel.resize(0, 0);
-	mFrameVelMirror.resize(0, 0);
 	mParams = tParams();
 }
 
@@ -75,8 +117,13 @@ bool cMotion::Load(const tParams& params)
 		succ = LoadJson(root);
 		if (succ)
 		{
-			PostProcessFrames(mFrames);
+			PostProcessFrames(mFrameTimes, mFrames);
 			UpdateVel();
+			mCycleDeltaRootPos = CalcCycleDeltaRootPos();
+			mCycleDeltaRootHeading = CalcCycleDeltaRootHeading();
+
+			double motion_dur = GetDuration();
+			printf("Loaded %.3f seconds of motion data from %s.\n", motion_dur, mParams.mMotionFile.c_str());
 		}
 		else
 		{
@@ -89,13 +136,15 @@ bool cMotion::Load(const tParams& params)
 		printf("Failed to parse Json from %s\n", mParams.mMotionFile.c_str());
 		assert(false);
 	}
+
 	return succ;
 }
 
 void cMotion::Init(int num_frames, int num_dofs)
 {
 	Clear();
-	mFrames = Eigen::MatrixXd::Zero(num_frames, num_dofs + eFrameMax);
+	mFrames.resize(num_frames, num_dofs);
+	mFrameTimes.resize(num_frames);
 }
 
 bool cMotion::IsValid() const
@@ -105,7 +154,7 @@ bool cMotion::IsValid() const
 
 int cMotion::GetNumDof() const
 {
-	return GetFrameSize() - eFrameMax;
+	return GetFrameSize();
 }
 
 int cMotion::GetNumFrames() const
@@ -118,7 +167,7 @@ int cMotion::GetFrameSize() const
 	return static_cast<int>(mFrames.cols());
 }
 
-void cMotion::BuildFrameVel(Eigen::MatrixXd& out_frame_vel, bool mirror /*= false*/) const
+void cMotion::BuildFrameVel(Eigen::MatrixXd& out_frame_vel) const
 {
 	int num_frames = GetNumFrames();
 	int dof = GetNumDof();
@@ -130,11 +179,6 @@ void cMotion::BuildFrameVel(Eigen::MatrixXd& out_frame_vel, bool mirror /*= fals
 		double dt = GetFrameDuration(f);
 		Eigen::VectorXd frame0 = GetFrame(f);
 		Eigen::VectorXd frame1 = GetFrame(f + 1);
-		if (mirror)
-		{
-			MirrorFrame(frame0);
-			MirrorFrame(frame1);
-		}
 
 		CalcFrameVel(frame0, frame1, dt, vel);
 		out_frame_vel.row(f) = vel;
@@ -144,42 +188,62 @@ void cMotion::BuildFrameVel(Eigen::MatrixXd& out_frame_vel, bool mirror /*= fals
 	{
 		out_frame_vel.row(num_frames - 1) = out_frame_vel.row(num_frames - 2);
 	}
-
-	if (mVelFilterCutoff > 0)
-	{
-		FilterFrameVel(out_frame_vel);
-	}
 }
 
-void cMotion::FilterFrameVel(Eigen::MatrixXd& out_frame_vel) const
+tVector cMotion::CalcCycleDeltaRootPos() const
 {
-	double dt = GetFrameDuration(0);
-	int num_dof = static_cast<int>(out_frame_vel.cols());
+	int num_frames = GetNumFrames();
+	Eigen::VectorXd frame_beg = GetFrame(0);
+	Eigen::VectorXd frame_end = GetFrame(num_frames - 1);
 
-	for (int i = 0; i < num_dof; ++i)
+	tVector root_pos_beg = cKinTree::GetRootPos(frame_beg);
+	tVector root_pos_end = cKinTree::GetRootPos(frame_end);
+
+	tVector delta_pos = root_pos_end - root_pos_beg;
+
+	if (!mCycleSyncRootHeight)
 	{
-		Eigen::VectorXd x = out_frame_vel.col(i);
-		cMathUtil::ButterworthFilter(dt, mVelFilterCutoff, x);
-		out_frame_vel.col(i) = x;
+		delta_pos[1] = 0.0;
 	}
+
+	return delta_pos;
 }
 
-cMotion::tFrame cMotion::GetFrame(int i) const
+double cMotion::CalcCycleDeltaRootHeading() const
+{
+	int num_frames = GetNumFrames();
+	Eigen::VectorXd frame_beg = GetFrame(0);
+	Eigen::VectorXd frame_end = GetFrame(num_frames - 1);
+
+	tQuaternion root_rot_beg = cKinTree::GetRootRot(frame_beg);
+	tQuaternion root_rot_end = cKinTree::GetRootRot(frame_end);
+
+	tQuaternion delta_rot = cMathUtil::QuatDiff(root_rot_beg, root_rot_end);
+	double delta_heading = cKinTree::CalcHeading(delta_rot);
+
+	return delta_heading;
+}
+
+cMotion::tFrame cMotion::GetFrame(int f) const
+{
+	return mFrames.row(f);
+}
+
+cMotion::tFrame cMotion::GetFrameVel(int f) const
+{
+	return mFrameVel.row(f);
+}
+
+void cMotion::SetFrame(int f, const tFrame& frame)
 {
 	int frame_size = GetFrameSize();
-	return mFrames.row(i).segment(eFrameMax, frame_size - eFrameMax);
+	assert(frame.size() == frame_size);
+	mFrames.row(f) = frame;
 }
 
-void cMotion::SetFrame(int i, const tFrame& frame)
+void cMotion::SetFrameTime(int f, double time)
 {
-	int frame_size = GetFrameSize();
-	assert(frame.size() == frame_size - eFrameMax);
-	mFrames.row(i).segment(eFrameMax, frame_size - eFrameMax) = frame;
-}
-
-void cMotion::SetFrameTime(int i, double time)
-{
-	mFrames(i, 0) = time;
+	mFrameTimes(f) = time;
 }
 
 void cMotion::BlendFrames(int a, int b, double lerp, tFrame& out_frame) const
@@ -200,20 +264,16 @@ void cMotion::BlendFrames(int a, int b, double lerp, tFrame& out_frame) const
 	}
 }
 
-void cMotion::CalcFrame(double time, tFrame& out_frame, bool force_mirror /*=false*/) const
+void cMotion::CalcFrame(double time, tFrame& out_frame) const
 {
 	int idx;
-	double phase;
-	CalcIndexPhase(time, idx, phase);
+	double blend;
+	CalcIndexBlend(time, idx, blend);
 
-	BlendFrames(idx, idx + 1, phase, out_frame);
-	if (NeedMirrorFrame(time) || force_mirror)
-	{
-		MirrorFrame(out_frame);
-	}
+	BlendFrames(idx, idx + 1, blend, out_frame);
 }
 
-void cMotion::CalcFrameVel(double time, cMotion::tFrame& out_vel, bool force_mirror /*=false*/) const
+void cMotion::CalcFrameVel(double time, cMotion::tFrame& out_vel) const
 {
 	if (!EnableLoop() && time >= GetDuration())
 	{
@@ -221,30 +281,22 @@ void cMotion::CalcFrameVel(double time, cMotion::tFrame& out_vel, bool force_mir
 	}
 	else
 	{
-		const Eigen::MatrixXd* vel_frame = nullptr;
-		if (NeedMirrorFrame(time) || force_mirror)
-		{
-			vel_frame = &mFrameVelMirror;
-		}
-		else
-		{
-			vel_frame = &mFrameVel;
-		}
+		const Eigen::MatrixXd* vel_frame = &mFrameVel;
 
 		int idx;
-		double phase;
-		CalcIndexPhase(time, idx, phase);
+		double blend;
+		CalcIndexBlend(time, idx, blend);
 		auto vel0 = vel_frame->row(idx);
 		auto vel1 = vel_frame->row(idx + 1);
-		out_vel = (1 - phase) * vel0 + phase * vel1;
+		cKinTree::LerpVels(vel0, vel1, blend, out_vel);
 	}
 }
 
-void cMotion::CalcFramePhase(double phase, tFrame& out_frame, bool force_mirror /*=false*/) const
+void cMotion::CalcFramePhase(double phase, tFrame& out_frame) const
 {
 	double max_time = GetDuration();
 	double time = phase * max_time;
-	CalcFrame(time, out_frame, force_mirror);
+	CalcFrame(time, out_frame);
 }
 
 bool cMotion::LoadJson(const Json::Value& root)
@@ -256,17 +308,13 @@ bool cMotion::LoadJson(const Json::Value& root)
 		ParseLoop(loop_str, mLoop);
 	}
 
-	mVelFilterCutoff = root.get(gVelFilterCutoffKey, mVelFilterCutoff).asDouble();
-
-	if (mParams.mRightJoints.size() == 0 && mParams.mLeftJoints.size() == 0)
-	{
-		succ &= LoadJsonJoints(root, mParams.mRightJoints, mParams.mLeftJoints);
-	}
-	assert(mParams.mRightJoints.size() == mParams.mLeftJoints.size());
+	mCycleSyncRootPos = root.get(gCycleSyncRootPosKey, mCycleSyncRootPos).asBool();
+	mCycleSyncRootRot = root.get(gCycleSyncRootRotKey, mCycleSyncRootRot).asBool();
+	mCycleSyncRootHeight = root.get(gCycleSyncRootHeightKey, mCycleSyncRootHeight).asBool();
 
 	if (!root[gFrameKey].isNull())
 	{
-		succ &= LoadJsonFrames(root[gFrameKey], mFrames);
+		succ &= LoadJsonFrames(root[gFrameKey], mFrameTimes, mFrames);
 	}
 	return succ;
 }
@@ -293,30 +341,32 @@ bool cMotion::ParseLoop(const std::string& str, eLoop& out_loop) const
 	return succ;
 }
 
-bool cMotion::LoadJsonFrames(const Json::Value& root, Eigen::MatrixXd& out_frames) const
+bool cMotion::LoadJsonFrames(const Json::Value& root, Eigen::VectorXd& out_frame_times, Eigen::MatrixXd& out_frames) const
 {
 	bool succ = true;
 
 	assert(root.isArray());
 	int num_frames = root.size();
 
-	int data_size = 0;
+	int frame_size = 0;
 	if (num_frames > 0)
 	{
 		int idx0 = 0;
 		Json::Value frame_json = root.get(idx0, 0);
-		data_size = frame_json.size();
-		out_frames.resize(num_frames, data_size);
+		frame_size = frame_json.size() - 1; // first entry is the duration
+		out_frame_times.resize(num_frames);
+		out_frames.resize(num_frames, frame_size);
 	}
 
 	for (int f = 0; f < num_frames; ++f)
 	{
-		Eigen::VectorXd curr_frame;
-		succ &= ParseFrameJson(root.get(f, 0), curr_frame);
+		Eigen::VectorXd curr_frame_data;
+		succ &= ParseFrameJson(root.get(f, 0), curr_frame_data);
 		if (succ)
 		{
-			assert(mFrames.cols() == curr_frame.size());
-			out_frames.row(f) = curr_frame;
+			assert(out_frames.cols() == curr_frame_data.size() - 1);
+			out_frame_times(f) = curr_frame_data[0];
+			out_frames.row(f) = curr_frame_data.segment(1, frame_size);
 		}
 		else
 		{
@@ -345,67 +395,36 @@ bool cMotion::ParseFrameJson(const Json::Value& root, Eigen::VectorXd& out_frame
 	return succ;
 }
 
-bool cMotion::LoadJsonJoints(const Json::Value& root, std::vector<int>& out_right_joints, std::vector<int>& out_left_joints) const
-{
-	bool succ = true;
-	if (!root[gRightJointsKey].isNull() && !root[gLeftJointsKey].isNull())
-	{
-		auto right_joints_json = root[gRightJointsKey];
-		auto left_joints_json = root[gLeftJointsKey];
-		assert(right_joints_json.isArray());
-		assert(left_joints_json.isArray());
-
-		int num_right_joints = right_joints_json.size();
-		assert(num_right_joints == left_joints_json.size());
-		succ = num_right_joints == left_joints_json.size();
-		if (succ)
-		{
-			std::vector<int> right_joints(num_right_joints);
-			std::vector<int> left_joints(num_right_joints);
-
-			out_right_joints.resize(num_right_joints);
-			out_left_joints.resize(num_right_joints);
-			for (int i = 0; i < num_right_joints; ++i)
-			{
-				int right_id = right_joints_json[i].asInt();
-				int left_id = left_joints_json[i].asInt();
-				out_right_joints[i] = right_id;
-				out_left_joints[i] = left_id;
-			}
-		}
-	}
-	else
-	{
-		out_right_joints.clear();
-		out_left_joints.clear();
-	}
-
-	return succ;
-}
-
 std::string cMotion::BuildLoopStr(eLoop loop) const
 {
 	return gLoopStr[loop];
 }
 
-void cMotion::PostProcessFrames(Eigen::MatrixXd& frames) const
+void cMotion::PostProcessFrames(Eigen::VectorXd& frame_times, Eigen::MatrixXd& frames) const
 {
 	int frame_size = GetFrameSize();
 	int num_frames = static_cast<int>(frames.rows());
 	double curr_time = gMinTime;
 
+	Eigen::VectorXd root_pos_offset = cKinTree::GetRootPos(frames.row(0));
+	root_pos_offset[1] = 0;
+
 	for (int f = 0; f < num_frames; ++f)
 	{
-		auto curr_frame = frames.row(f);
-		double duration = curr_frame(0, eFrameTime);
-		curr_frame(0, eFrameTime) = curr_time;
+		Eigen::VectorXd curr_frame = frames.row(f);
+		double duration = frame_times(f);
+		frame_times(f) = curr_time;
 		curr_time += duration;
 
 		if (HasPostProcessFunc())
 		{
-			Eigen::VectorXd pose = curr_frame.segment(eFrameMax, frame_size - eFrameMax);
-			mParams.mPostProcessFunc(&pose);
-			curr_frame.segment(eFrameMax, frame_size - eFrameMax) = pose;
+			// center start of motion at origin
+			tVector curr_root_pos = cKinTree::GetRootPos(curr_frame);
+			curr_root_pos -= root_pos_offset;
+			cKinTree::SetRootPos(curr_root_pos, curr_frame);
+			mParams.mPostProcessFunc(&curr_frame);
+
+			frames.row(f) = curr_frame;
 		}
 	}
 }
@@ -413,11 +432,11 @@ void cMotion::PostProcessFrames(Eigen::MatrixXd& frames) const
 double cMotion::GetDuration() const
 {
 	int num_frames = GetNumFrames();
-	double max_time = mFrames(num_frames - 1, eFrameTime);
+	double max_time = mFrameTimes(num_frames - 1);
 	return max_time;
 }
 
-void cMotion::SetDuration(double dur)
+void cMotion::ChangeDuration(double dur)
 {
 	double dur_old = GetDuration();
 	int num_frames = GetNumFrames();
@@ -434,7 +453,7 @@ void cMotion::SetDuration(double dur)
 
 double cMotion::GetFrameTime(int f) const
 {
-	return mFrames(f, eFrameTime);
+	return mFrameTimes(f);
 }
 
 double cMotion::GetFrameDuration(int f) const
@@ -447,17 +466,24 @@ double cMotion::GetFrameDuration(int f) const
 	return dur;
 }
 
+double cMotion::CalcPhase(double time) const
+{
+	double dur = GetDuration();
+	double phase = CalcPhase(time, dur, 0, EnableLoop());
+	return phase;
+}
+
 int cMotion::CalcCycleCount(double time) const
 {
 	double dur = GetDuration();
-	double phases = time / dur;
-	int count = static_cast<int>(std::floor(phases));
+	double phase = time / dur;
+	int count = static_cast<int>(std::floor(phase));
 	bool loop = EnableLoop();
 	count = (loop) ? count : cMathUtil::Clamp(count, 0, 1);
 	return count;
 }
 
-void cMotion::CalcIndexPhase(double time, int& out_idx, double& out_phase) const
+void cMotion::CalcIndexBlend(double time, int& out_idx, double& out_blend) const
 {
 	double max_time = GetDuration();
 
@@ -466,41 +492,38 @@ void cMotion::CalcIndexPhase(double time, int& out_idx, double& out_phase) const
 		if (time <= gMinTime)
 		{
 			out_idx = 0;
-			out_phase = 0;
+			out_blend = 0;
 			return;
 		}
 		else if (time >= max_time)
 		{
 			out_idx = GetNumFrames() - 2;
-			out_phase = 1;
+			out_blend = 1;
 			return;
 		}
 	}
 
 	int cycle_count = CalcCycleCount(time);
 	time -= cycle_count * GetDuration();
-	if (time < 0)
-	{
-		time += max_time;
-	}
 
-	const Eigen::VectorXd& frame_times = mFrames.col(eFrameTime);
-	auto it = std::upper_bound(frame_times.data(), frame_times.data() + frame_times.size(), time);
-	out_idx = static_cast<int>(it - frame_times.data() - 1);
+	auto it = std::upper_bound(mFrameTimes.data(), mFrameTimes.data() + mFrameTimes.size(), time);
+	out_idx = static_cast<int>(it - mFrameTimes.data() - 1);
 
-	double time0 = frame_times(out_idx);
-	double time1 = frame_times(out_idx + 1);
-	out_phase = (time - time0) / (time1 - time0);
+	double time0 = mFrameTimes(out_idx);
+	double time1 = mFrameTimes(out_idx + 1);
+	out_blend = (time - time0) / (time1 - time0);
 }
 
 void cMotion::UpdateVel()
 {
-	BuildFrameVel(mFrameVel, false);
+	BuildFrameVel(mFrameVel);
+}
 
-	if (mLoop == eLoopMirror)
-	{
-		BuildFrameVel(mFrameVelMirror, true);
-	}
+void cMotion::TimeWrap(double scale)
+{
+	// linear timewarp
+	double duration = GetDuration();
+	ChangeDuration(scale * duration);
 }
 
 bool cMotion::IsOver(double time) const
@@ -511,11 +534,6 @@ bool cMotion::IsOver(double time) const
 bool cMotion::HasBlendFunc() const
 {
 	return mParams.mBlendFunc != nullptr;
-}
-
-bool cMotion::HasMirrorFunc() const
-{
-	return mParams.mMirrorFunc != nullptr;
 }
 
 bool cMotion::HasVelFunc() const
@@ -548,24 +566,6 @@ void cMotion::BlendFramesIntern(const Eigen::VectorXd* a, const Eigen::VectorXd*
 	*out_frame = (1 - lerp) * (*a) + lerp * (*b);
 }
 
-bool cMotion::NeedMirrorFrame(double time) const
-{
-	bool mirror = false;
-	if (mLoop == eLoopMirror)
-	{
-		int cycle = CalcCycleCount(time);
-		mirror = cycle % 2 != 0;
-	}
-	return mirror;
-}
-
-void cMotion::MirrorFrame(tFrame& out_frame) const
-{
-	assert(mParams.mMirrorFunc != nullptr);
-	assert(mParams.mLeftJoints.size() > 0 && mParams.mRightJoints.size() > 0);
-	mParams.mMirrorFunc(&mParams.mLeftJoints, &mParams.mRightJoints, &out_frame);
-}
-
 void cMotion::CalcFrameVel(const tFrame& frame0, const tFrame& frame1, double dt, tFrame& out_vel) const
 {
 	if (HasVelFunc())
@@ -588,36 +588,39 @@ void cMotion::Output(const std::string& out_filepath) const
 	std::string loop_str = BuildLoopStr(mLoop);
 	fprintf(file, "\"%s\",\n", loop_str.c_str());
 
-	fprintf(file, "\"%s\": %.5f,\n", gVelFilterCutoffKey.c_str(), mVelFilterCutoff);
-
-	if (mParams.mRightJoints.size() > 0 && mParams.mLeftJoints.size() > 0)
+	if (mCycleSyncRootPos)
 	{
-		fprintf(file, "\"%s\": [", gRightJointsKey.c_str());
-		for (size_t i = 0; i < mParams.mRightJoints.size(); ++i)
-		{
-			if (i != 0)
-			{
-				fprintf(file, ", ");
-			}
-			fprintf(file, "%i", mParams.mRightJoints[i]);
-		}
-		fprintf(file, "],\n");
-
-		fprintf(file, "\"%s\": [", gLeftJointsKey.c_str());
-		for (size_t i = 0; i < mParams.mLeftJoints.size(); ++i)
-		{
-			if (i != 0)
-			{
-				fprintf(file, ", ");
-			}
-			fprintf(file, "%i", mParams.mLeftJoints[i]);
-		}
-		fprintf(file, "],\n");
+		fprintf(file, "\"%s\": true,\n", gCycleSyncRootPosKey.c_str());
+	}
+	else
+	{
+		fprintf(file, "\"%s\": false,\n", gCycleSyncRootPosKey.c_str());
 	}
 
+	if (mCycleSyncRootRot)
+	{
+		fprintf(file, "\"%s\": true,\n", gCycleSyncRootRotKey.c_str());
+	}
+	else
+	{
+		fprintf(file, "\"%s\": false,\n", gCycleSyncRootRotKey.c_str());
+	}
+
+	if (mCycleSyncRootHeight)
+	{
+		fprintf(file, "\"%s\": true,\n", gCycleSyncRootHeightKey.c_str());
+	}
+	else
+	{
+		fprintf(file, "\"%s\": false,\n", gCycleSyncRootHeightKey.c_str());
+	}
+
+	fprintf(file, "\n");
 	fprintf(file, "\"Frames\":\n[\n");
 
 	int num_frames = GetNumFrames();
+	int frame_size = GetFrameSize();
+	Eigen::VectorXd frame_data = Eigen::VectorXd::Zero(frame_size + 1);
 	for (int f = 0; f < num_frames; ++f)
 	{
 		if (f != 0)
@@ -631,8 +634,9 @@ void cMotion::Output(const std::string& out_filepath) const
 		{
 			dur = GetFrameDuration(f);
 		}
-		curr_frame[eFrameTime] = dur;
-		std::string frame_json = cJsonUtil::BuildVectorJson(curr_frame);
+		frame_data[0] = dur;
+		frame_data.segment(1, frame_size) = curr_frame;
+		std::string frame_json = cJsonUtil::BuildVectorJson(frame_data);
 		fprintf(file, "%s", frame_json.c_str());
 	}
 

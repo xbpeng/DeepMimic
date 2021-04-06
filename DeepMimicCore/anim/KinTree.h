@@ -95,16 +95,18 @@ public:
 	static const int gPosDim;
 	static const int gRotDim;
 	static const int gRootDim;
+	static const int gVelDim;
+	static const int gAngVelDim;
+	static const int gRootParamOffset;
 
-	static bool HasValidRoot(const Eigen::MatrixXd& joint_mat);
-	static tVector GetRootPos(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& state);
-	static void SetRootPos(const Eigen::MatrixXd& joint_mat, const tVector& pos, Eigen::VectorXd& out_state);
-	static tQuaternion GetRootRot(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& state);
-	static void SetRootRot(const Eigen::MatrixXd& joint_mat, const tQuaternion& rot, Eigen::VectorXd& out_state);
-	static tVector GetRootVel(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& vel);
-	static void SetRootVel(const Eigen::MatrixXd& joint_mat, const tVector& vel, Eigen::VectorXd& out_vel);
-	static tVector GetRootAngVel(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& vel);
-	static void SetRootAngVel(const Eigen::MatrixXd& joint_mat, const tVector& ang_vel, Eigen::VectorXd& out_vel);
+	static tVector GetRootPos(const Eigen::VectorXd& state);
+	static void SetRootPos(const tVector& pos, Eigen::VectorXd& out_state);
+	static tQuaternion GetRootRot(const Eigen::VectorXd& state);
+	static void SetRootRot(const tQuaternion& rot, Eigen::VectorXd& out_state);
+	static tVector GetRootVel(const Eigen::VectorXd& vel);
+	static void SetRootVel(const tVector& vel, Eigen::VectorXd& out_vel);
+	static tVector GetRootAngVel(const Eigen::VectorXd& vel);
+	static void SetRootAngVel(const tVector& ang_vel, Eigen::VectorXd& out_vel);
 
 	static tVector CalcJointWorldPos(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& state, int joint_id);
 	static tVector LocalToWorldPos(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& state, int parent_id, const tVector& attach_pt);
@@ -159,7 +161,7 @@ public:
 	
 	static bool Load(const Json::Value& root, Eigen::MatrixXd& out_joint_mat);
 	static int GetNumJoints(const Eigen::MatrixXd& joint_mat);
-	static int GetRoot(const Eigen::MatrixXd& joint_mat);
+	static int GetRootID();
 	static void FindChildren(const Eigen::MatrixXd& joint_mat, int joint_id, Eigen::VectorXi& out_children);
 
 	static bool LoadBodyDefs(const std::string& char_file, Eigen::MatrixXd& out_body_defs);
@@ -221,16 +223,17 @@ public:
 
 	static void PostProcessPose(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd& out_pose);
 	static void LerpPoses(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose0, const Eigen::VectorXd& pose1, double lerp, Eigen::VectorXd& out_pose);
+	static void LerpVels(const Eigen::VectorXd& vel0, const Eigen::VectorXd& vel1, double lerp, Eigen::VectorXd& out_vel);
 	static void VelToPoseDiff(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose, const Eigen::VectorXd& vel, Eigen::VectorXd& out_pose_diff);
 
-	static double CalcHeading(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose);
-	static tQuaternion CalcHeadingRot(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose);
-	static tMatrix BuildHeadingTrans(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose);
-	static tMatrix BuildOriginTrans(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& pose);
+	static double CalcHeading(const Eigen::VectorXd& pose);
+	static double CalcHeading(const tQuaternion& rot);
+	static tQuaternion CalcHeadingRot(const Eigen::VectorXd& pose);
+	static tQuaternion CalcHeadingRot(const tQuaternion& rot);
+	static tMatrix BuildHeadingTrans(const Eigen::VectorXd& pose);
+	static tMatrix BuildOriginTrans(const Eigen::VectorXd& pose);
 	static void NormalizePoseHeading(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd& out_pose);
 	static void NormalizePoseHeading(const Eigen::MatrixXd& joint_mat, Eigen::VectorXd& out_pose, Eigen::VectorXd& out_vel);
-
-	static void MirrorPoseStance(const Eigen::MatrixXd& joint_mat, const std::vector<int> mirror_joints0, const std::vector<int> mirror_joints1, Eigen::VectorXd& out_pose);
 
 	static std::string BuildJointMatJson(const Eigen::MatrixXd& joint_mat);
 	static std::string BuildJointJson(int id, const tJointDesc& joint_desc);

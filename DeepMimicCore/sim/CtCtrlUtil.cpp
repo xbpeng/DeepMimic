@@ -4,6 +4,35 @@
 
 const double gDefaultOffsetPDBound = 10;
 const double gDefaultRotatePDBound = M_PI;
+const double cCtCtrlUtil::gMaxPDExpVal = 2.0 * M_PI;
+
+
+int cCtCtrlUtil::GetParamDimTorque(const Eigen::MatrixXd& joint_mat, int joint_id)
+{
+	int dim = 0;
+	cKinTree::eJointType joint_type = cKinTree::GetJointType(joint_mat, joint_id);
+	if (joint_type == cKinTree::eJointTypeSpherical)
+	{
+		dim = 3;
+	}
+	else
+	{
+		dim = cKinTree::GetParamSize(joint_mat, joint_id);
+	}
+	return dim;
+}
+
+int cCtCtrlUtil::GetParamDimVel(const Eigen::MatrixXd& joint_mat, int joint_id)
+{
+	int dim = GetParamDimTorque(joint_mat, joint_id);
+	return dim;
+}
+
+int cCtCtrlUtil::GetParamDimPD(const Eigen::MatrixXd& joint_mat, int joint_id)
+{
+	int dim = GetParamDimTorque(joint_mat, joint_id);
+	return dim;
+}
 
 void cCtCtrlUtil::BuildBoundsTorque(const Eigen::MatrixXd& joint_mat, int joint_id, Eigen::VectorXd& out_min, Eigen::VectorXd& out_max)
 {
@@ -330,31 +359,9 @@ void cCtCtrlUtil::BuildBoundsPDSpherical(const Eigen::MatrixXd& joint_mat, int j
 	cKinTree::eJointType joint_type = cKinTree::GetJointType(joint_mat, joint_id);
 	assert(joint_type == cKinTree::eJointTypeSpherical);
 
-	int joint_dim = cKinTree::GetParamSize(joint_mat, joint_id);
-	out_min = -Eigen::VectorXd::Ones(joint_dim);
-	out_max = Eigen::VectorXd::Ones(joint_dim);
-
-#if defined(ENABLE_PD_SPHERE_AXIS)
-	tVector lim_low = cKinTree::GetJointLimLow(joint_mat, joint_id);
-	tVector lim_high = cKinTree::GetJointLimHigh(joint_mat, joint_id);
-
-	double val_low = lim_low.minCoeff();
-	double val_high = lim_high.maxCoeff();
-	bool valid_lim = val_high >= val_low;
-	if (!valid_lim)
-	{
-		val_low = -gDefaultRotatePDBound;
-		val_high = gDefaultRotatePDBound;
-	}
-
-	double mean_val = 0.5 * (val_high + val_low);
-	double delta = val_high - val_low;
-	val_low = mean_val - 2 * delta;
-	val_high = mean_val + 2 * delta;
-
-	out_min[0] = val_low;
-	out_max[0] = val_high;
-#endif
+	int param_dim = gExpMapDim;
+	out_min = -gMaxPDExpVal * Eigen::VectorXd::Ones(param_dim);
+	out_max = gMaxPDExpVal * Eigen::VectorXd::Ones(param_dim);
 }
 
 
@@ -456,34 +463,12 @@ void cCtCtrlUtil::BuildOffsetScalePDFixed(const Eigen::MatrixXd& joint_mat, int 
 
 void cCtCtrlUtil::BuildOffsetScalePDSpherical(const Eigen::MatrixXd& joint_mat, int joint_id, Eigen::VectorXd& out_offset, Eigen::VectorXd& out_scale)
 {
+	const double scale = 2.0 / gMaxPDExpVal;
+
 	cKinTree::eJointType joint_type = cKinTree::GetJointType(joint_mat, joint_id);
 	assert(joint_type == cKinTree::eJointTypeSpherical);
 
-	int joint_dim = cKinTree::GetParamSize(joint_mat, joint_id);
-	out_offset = Eigen::VectorXd::Zero(joint_dim);
-	out_scale = Eigen::VectorXd::Ones(joint_dim);
-
-#if defined(ENABLE_PD_SPHERE_AXIS)
-	tVector lim_low = cKinTree::GetJointLimLow(joint_mat, joint_id);
-	tVector lim_high = cKinTree::GetJointLimHigh(joint_mat, joint_id);
-
-	double val_low = lim_low.minCoeff();
-	double val_high = lim_high.maxCoeff();
-	bool valid_lim = val_high >= val_low;
-	if (!valid_lim)
-	{
-		val_low = -gDefaultRotatePDBound;
-		val_high = gDefaultRotatePDBound;
-	}
-
-	double curr_offset = 0;
-	double curr_scale = 1 / (val_high - val_low);
-	curr_scale *= 0.5;
-
-	out_offset(0) = curr_offset;
-	out_scale(0) = curr_scale;
-	out_offset(3) = -0.2;
-#else
-	out_offset(0) = -0.2;
-#endif
+	int param_dim = gExpMapDim;
+	out_offset = Eigen::VectorXd::Zero(param_dim);
+	out_scale = scale * Eigen::VectorXd::Ones(param_dim);
 }

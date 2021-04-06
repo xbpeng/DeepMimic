@@ -1,5 +1,4 @@
 numpy>=1.15.2
 PyOpenGL==3.1.0
-PyOpenGL-accelerate==3.1.0
 tensorflow>=1.3.0
 mpi4py>=3.0.0

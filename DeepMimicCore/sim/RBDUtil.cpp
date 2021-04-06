@@ -839,7 +839,7 @@ Eigen::MatrixXd cRBDUtil::BuildJointSubspaceRoot(const Eigen::MatrixXd& joint_ma
 	int rot_dim = cKinTree::gRotDim;
 
 	Eigen::MatrixXd S = Eigen::MatrixXd::Zero(cSpAlg::gSpVecSize, dim);
-	tQuaternion quat = cKinTree::GetRootRot(joint_mat, pose);
+	tQuaternion quat = cKinTree::GetRootRot(pose);
 	tMatrix E = cMathUtil::RotateMat(quat);
 
 	S.block(3, 0, 3, pos_dim) = E.block(0, 0, 3, pos_dim).transpose();
@@ -931,9 +931,9 @@ cSpAlg::tSpVec cRBDUtil::BuildCj(const Eigen::MatrixXd& joint_mat, const Eigen::
 
 cSpAlg::tSpVec cRBDUtil::BuildCjRoot(const Eigen::MatrixXd& joint_mat, const Eigen::VectorXd& q, const Eigen::VectorXd& q_dot, int j)
 {
-	tQuaternion quat = cKinTree::GetRootRot(joint_mat, q);
-	tVector vel_lin = cKinTree::GetRootVel(joint_mat, q_dot);
-	tVector vel_ang = cKinTree::GetRootAngVel(joint_mat, q_dot);
+	tQuaternion quat = cKinTree::GetRootRot(q);
+	tVector vel_lin = cKinTree::GetRootVel(q_dot);
+	tVector vel_ang = cKinTree::GetRootAngVel(q_dot);
 	vel_ang[3] = 0;
 
 	Eigen::VectorXd joint_params;

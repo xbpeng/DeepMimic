@@ -5,6 +5,18 @@
 #include "DrawSceneKinChar.h"
 #include "DrawSceneImitate.h"
 #include "SceneImitate.h"
+#include "DrawSceneImitateAMP.h"
+#include "SceneImitateAMP.h"
+#include "DrawSceneTargetAMP.h"
+#include "SceneTargetAMP.h"
+#include "DrawSceneHeadingAMP.h"
+#include "SceneHeadingAMP.h"
+#include "DrawSceneDribbleAMP.h"
+#include "SceneDribbleAMP.h"
+#include "DrawSceneStrikeAMP.h"
+#include "SceneStrikeAMP.h"
+#include "DrawSceneHeadingAMPGetup.h"
+#include "SceneHeadingAMPGetup.h"
 
 void cSceneBuilder::BuildScene(const std::string& scene_name, std::shared_ptr<cScene>& out_scene)
 {
@@ -20,6 +32,30 @@ void cSceneBuilder::BuildScene(const std::string& scene_name, std::shared_ptr<cS
 	else if (scene_name == "imitate")
 	{
 		out_scene = std::shared_ptr<cSceneImitate>(new cSceneImitate());
+	}
+	else if (scene_name == "imitate_amp")
+	{
+		out_scene = std::shared_ptr<cSceneImitateAMP>(new cSceneImitateAMP());
+	}
+	else if (scene_name == "target_amp")
+	{
+		out_scene = std::shared_ptr<cSceneTargetAMP>(new cSceneTargetAMP());
+	}
+	else if (scene_name == "heading_amp")
+	{
+		out_scene = std::shared_ptr<cSceneHeadingAMP>(new cSceneHeadingAMP());
+	}
+	else if (scene_name == "dribble_amp")
+	{
+		out_scene = std::shared_ptr<cSceneDribbleAMP>(new cSceneDribbleAMP());
+	}
+	else if (scene_name == "strike_amp")
+	{
+		out_scene = std::shared_ptr<cSceneStrikeAMP>(new cSceneStrikeAMP());
+	}
+	else if (scene_name == "heading_amp_getup")
+	{
+		out_scene = std::shared_ptr<cSceneHeadingAMPGetup>(new cSceneHeadingAMPGetup());
 	}
 	else
 	{
@@ -42,6 +78,30 @@ void cSceneBuilder::BuildDrawScene(const std::string& scene_name, std::shared_pt
 	else if (scene_name == "imitate")
 	{
 		out_scene = std::shared_ptr<cDrawSceneImitate>(new cDrawSceneImitate());
+	}
+	else if (scene_name == "imitate_amp")
+	{
+		out_scene = std::shared_ptr<cDrawSceneImitateAMP>(new cDrawSceneImitateAMP());
+	}
+	else if (scene_name == "target_amp")
+	{
+		out_scene = std::shared_ptr<cDrawSceneTargetAMP>(new cDrawSceneTargetAMP());
+	}
+	else if (scene_name == "heading_amp")
+	{
+		out_scene = std::shared_ptr<cDrawSceneHeadingAMP>(new cDrawSceneHeadingAMP());
+	}
+	else if (scene_name == "dribble_amp")
+	{
+		out_scene = std::shared_ptr<cDrawSceneDribbleAMP>(new cDrawSceneDribbleAMP());
+	}
+	else if (scene_name == "strike_amp")
+	{
+		out_scene = std::shared_ptr<cDrawSceneStrikeAMP>(new cDrawSceneStrikeAMP());
+	}
+	else if (scene_name == "heading_amp_getup")
+	{
+		out_scene = std::shared_ptr<cDrawSceneHeadingAMPGetup>(new cDrawSceneHeadingAMPGetup());
 	}
 	else
 	{

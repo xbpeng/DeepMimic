@@ -22,6 +22,7 @@ public:
 	virtual int GetNumDof() const;
 	virtual const Eigen::MatrixXd& GetJointMat() const;
 	virtual int GetNumJoints() const;
+	virtual cKinTree::eJointType GetJointType(int joint_id) const;
 
 	virtual const Eigen::VectorXd& GetPose() const;
 	virtual void SetPose(const Eigen::VectorXd& pose);
@@ -63,7 +64,8 @@ public:
 	virtual tMatrix BuildJointWorldTrans(int joint_id) const;
 
 	virtual void CalcAABB(tVector& out_min, tVector& out_max) const;
-	virtual int CalcNumEndEffectors() const;
+	virtual int GetNumEndEffectors() const;
+	virtual const Eigen::VectorXi& GetEndEffectors() const;
 
 	// weights for each joint used to compute the pose error during training
 	virtual double GetJointDiffWeight(int joint_id) const;
@@ -88,6 +90,8 @@ protected:
 	Eigen::VectorXd mPose0;
 	Eigen::VectorXd mVel0;
 
+	Eigen::VectorXi mEndEffectors;
+
 	Eigen::MatrixXd mDrawShapeDefs;
 	std::vector<std::shared_ptr<cDrawMesh>> mMeshes;
 
@@ -99,4 +103,6 @@ protected:
 
 	virtual bool LoadDrawShapeDefs(const std::string& char_file, Eigen::MatrixXd& out_draw_defs) const;
 	virtual bool LoadMeshes(const std::string& char_file, std::vector<std::shared_ptr<cDrawMesh>>& out_meshes) const;
+
+	virtual void RecordEndEffectors(Eigen::VectorXi& out_end_effs) const;
 };

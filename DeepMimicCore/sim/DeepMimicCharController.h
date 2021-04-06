@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sim/CharController.h"
+#include "sim/Ground.h"
 #include "util/CircularBuffer.h"
 
 class cDeepMimicCharController : public cCharController
@@ -19,10 +20,11 @@ public:
 	virtual void UpdateCalcTau(double timestep, Eigen::VectorXd& out_tau);
 	virtual void UpdateApplyTau(const Eigen::VectorXd& tau);
 
+	virtual void SetGround(std::shared_ptr<cGround> ground);
+
 	virtual bool NeedNewAction() const;
 	virtual void ApplyAction(const Eigen::VectorXd& action);
 	virtual void RecordState(Eigen::VectorXd& out_state);
-	virtual void RecordGoal(Eigen::VectorXd& out_goal) const;
 	virtual void RecordAction(Eigen::VectorXd& out_action) const;
 
 	virtual eActionSpace GetActionSpace() const;
@@ -59,6 +61,8 @@ protected:
 	double mPrevActionTime;
 	tVector mPrevActionCOM;
 
+	std::shared_ptr<cGround> mGround;
+
 	// for recording prediction from the value function, mainly for visualization
 	cCircularBuffer<double> mValLog; 
 
@@ -77,6 +81,8 @@ protected:
 	virtual void NewActionUpdate();
 	virtual void HandleNewAction();
 	virtual void PostProcessAction(Eigen::VectorXd& out_action) const;
+	virtual bool HasGround() const;
+	virtual double SampleGroundHeight(const tVector& pos) const;
 
 	virtual void BuildStatePose(Eigen::VectorXd& out_pose) const;
 	virtual void BuildStateVel(Eigen::VectorXd& out_vel) const;

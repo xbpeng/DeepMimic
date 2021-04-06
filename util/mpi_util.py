@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 from mpi4py import MPI
 
@@ -50,3 +51,15 @@ def gather_all(x):
     MPI.COMM_WORLD.Allgather(x_buf, buffer)
     buffer = list(buffer)
     return buffer
+
+def reduce_dict_mean(local_dict):
+    keys = sorted(local_dict.keys())
+    local_vals = np.array([local_dict[k] for k in keys])
+    global_vals = reduce_avg(local_vals)
+
+    new_dict = copy.deepcopy(local_dict)
+    for i, k in enumerate(keys):
+        val = global_vals[i]
+        new_dict[k] = val
+
+    return new_dict

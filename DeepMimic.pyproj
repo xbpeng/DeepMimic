@@ -14,10 +14,11 @@
     <Name>DeepMimic</Name>
     <RootNamespace>pyTerrainRL</RootNamespace>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>--arg_file args/run_humanoid3d_spinkick_args.txt</CommandLineArguments>
+    <CommandLineArguments>--arg_file args/test_args.txt</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <IsWindowsApplication>False</IsWindowsApplication>
     <InterpreterId>Global|PythonCore|3.5</InterpreterId>
+    <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,20 +34,25 @@
     <Compile Include="env\action_space.py" />
     <Compile Include="env\deepmimic_env.py" />
     <Compile Include="env\env.py" />
+    <Compile Include="learning\amp_agent.py" />
     <Compile Include="learning\exp_params.py" />
     <Compile Include="learning\nets\fc_2layers_1024units.py" />
+    <Compile Include="learning\nets\fc_2layers_gated_1024units.py" />
     <Compile Include="learning\nets\net_builder.py" />
     <Compile Include="learning\normalizer.py" />
     <Compile Include="learning\pg_agent.py" />
     <Compile Include="learning\path.py" />
     <Compile Include="learning\ppo_agent.py" />
     <Compile Include="learning\replay_buffer.py" />
+    <Compile Include="learning\replay_buffer_rand_storage.py" />
     <Compile Include="learning\rl_agent.py" />
     <Compile Include="learning\rl_util.py" />
     <Compile Include="learning\rl_world.py" />
     <Compile Include="learning\solvers\mpi_solver.py" />
     <Compile Include="learning\solvers\solver.py" />
     <Compile Include="learning\tf_agent.py" />
+    <Compile Include="learning\tf_distribution.py" />
+    <Compile Include="learning\tf_distribution_gaussian_diag.py" />
     <Compile Include="learning\tf_normalizer.py" />
     <Compile Include="learning\tf_util.py" />
     <Compile Include="learning\agent_builder.py" />

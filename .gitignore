@@ -13,6 +13,9 @@
 *.ipdb
 *.pyd
 *_wrap.cpp
+*.o
+*.cxx
+*.so
 
 
 .vs/
@@ -26,5 +29,6 @@ lib/
 external/
 Backup/
 data/intermediate/
+DeepMimicCore/objs/
 
 DeepMimicCore/DeepMimicCore.py

@@ -821,7 +821,7 @@ int cSceneSimChar::GetNumJoints() const
 
 bool cSceneSimChar::HasFallen(const cSimCharacter& sim_char) const
 {
-	bool fallen = sim_char.HasFallen();
+	bool fallen = HasFallenContact(sim_char);
 
 	tVector root_pos = sim_char.GetRootPos();
 	tVector ground_aabb_min;
@@ -833,6 +833,11 @@ bool cSceneSimChar::HasFallen(const cSimCharacter& sim_char) const
 	fallen |= !in_aabb;
 
 	return fallen;
+}
+
+bool cSceneSimChar::HasFallenContact(const cSimCharacter& sim_char) const
+{
+	return sim_char.HasFallen();
 }
 
 void cSceneSimChar::SpawnProjectile()

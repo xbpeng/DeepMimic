@@ -8,17 +8,16 @@
 	"ActorInitOutputScale": 0.01,
 
 	"CriticNet": "fc_2layers_1024units",
-	"CriticStepsize": 0.01,
+	"CriticStepsize": 0.0005,
 	"CriticMomentum": 0.9,
 	"CriticWeightDecay": 0,
 
-	"UpdatePeriod": 1,
 	"ItersPerUpdate": 1,
 	"Discount": 0.95,
 	"BatchSize": 4096,
 	"MiniBatchSize": 256,
 	"Epochs": 1,
-	"ReplayBufferSize": 500000,
+	"ReplayBufferSize": 1000000,
 	"InitSamples": 1,
 	"NormalizerSamples": 1000000,
 
@@ -35,18 +34,12 @@
 	"ExpParamsBeg":
 	{
 		"Rate": 1,
-		"InitActionRate": 1,
-		"Noise": 0.05,
-		"NoiseInternal": 0,
-		"Temp": 0.1
+		"Noise": 0.05
 	},
 
 	"ExpParamsEnd":
 	{
 		"Rate": 0.2,
-		"InitActionRate": 0.01,
-		"Noise": 0.05,
-		"NoiseInternal": 0,
-		"Temp": 0.001
+		"Noise": 0.05
 	}
 }

@@ -2,6 +2,7 @@
 
 #include "scenes/RLSceneSimChar.h"
 #include "anim/KinCharacter.h"
+#include "anim/KinCtrlBuilder.h"
 
 class cSceneImitate : virtual public cRLSceneSimChar
 {
@@ -25,7 +26,7 @@ public:
 
 protected:
 
-	std::string mMotionFile;
+	cKinCtrlBuilder::tCtrlParams mKinCtrlParams;
 	std::shared_ptr<cKinCharacter> mKinChar;
 
 	Eigen::VectorXd mJointWeights;
@@ -33,14 +34,14 @@ protected:
 	bool mSyncCharRootPos;
 	bool mSyncCharRootRot;
 	bool mEnableRootRotFail;
-	double mHoldEndFrame;
 
+	virtual void ParseKinCtrlParams(const std::shared_ptr<cArgParser>& parser, cKinCtrlBuilder::tCtrlParams& out_params) const;
 	virtual bool BuildCharacters();
 
 	virtual void CalcJointWeights(const std::shared_ptr<cSimCharacter>& character, Eigen::VectorXd& out_weights) const;
 	virtual bool BuildController(const cCtrlBuilder::tCtrlParams& ctrl_params, std::shared_ptr<cCharController>& out_ctrl);
-	virtual void BuildKinChar();
-	virtual bool BuildKinCharacter(int id, std::shared_ptr<cKinCharacter>& out_char) const;
+	virtual bool BuildKinCharacter();
+	virtual bool BuildKinController();
 	virtual void UpdateCharacters(double timestep);
 	virtual void UpdateKinChar(double timestep);
 

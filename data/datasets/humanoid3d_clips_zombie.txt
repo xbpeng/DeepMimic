@@ -1,0 +1,6 @@
+{
+	"Motions": 
+	[
+		{"Weight": 1, "File": "data/motions/long/humanoid3d_long_zombie.txt"}
+	]
+}

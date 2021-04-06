@@ -1,0 +1,36 @@
+--scene dribble_amp
+
+--num_update_substeps 10
+--num_sim_substeps 2
+--world_scale 4
+
+--terrain_file data/terrain/plane.txt
+
+--char_types general
+--character_files data/characters/humanoid3d.txt
+--enable_char_soft_contact false
+--fall_contact_bodies 0 1 2 3 4 6 7 8 9 10 12 13 14
+
+--char_ctrls ct_pd
+--char_ctrl_files data/controllers/humanoid3d_ctrl.txt
+--kin_ctrl clips
+--motion_file data/datasets/humanoid3d_clips_locomotion.txt
+--sync_char_root_pos true
+--sync_char_root_rot false
+--enable_rand_rot_reset true
+--enable_amp_obs_local_root true
+
+--tar_speed 1
+--max_target_dist 10
+--rand_target_time_min 50
+--rand_target_time_max 100
+--rand_tar_obj_time_min 100
+--rand_tar_obj_time_max 200
+--min_tar_obj_dist 0.5
+--max_tar_obj_dist 10
+--enable_min_tar_vel true
+
+--agent_files data/agents/ct_agent_humanoid_amp_tasks_rl07.txt
+--train_agents false
+
+--model_files data/policies/humanoid3d_amp/humanoid3d_amp_dribble_locomotion.ckpt

@@ -12,7 +12,8 @@
 --fall_contact_bodies 0 1 2 3 4 5 6 7 9 10 11 13 14 15 17 18 19 21 22
 
 --char_ctrls ct_pd
---char_ctrl_files data/controllers/dog3d_ctrl.txt
+--char_ctrl_files data/controllers/dog3d_phase_rot_ctrl.txt
+--kin_ctrl motion
 --motion_file data/motions/dog3d_pace.txt
 --sync_char_root_pos true
 --sync_char_root_rot false

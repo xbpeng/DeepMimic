@@ -163,6 +163,7 @@ protected:
 	virtual void RemoveJoint(int handle);
 	virtual int GetNumJoints() const;
 	virtual bool HasFallen(const cSimCharacter& sim_char) const;
+	virtual bool HasFallenContact(const cSimCharacter& sim_char) const;
 
 	virtual void SpawnProjectile(double density, double min_size, double max_size,
 									double min_speed, double max_speed, double y_offset, double life_time);

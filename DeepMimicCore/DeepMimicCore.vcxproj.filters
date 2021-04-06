@@ -302,6 +302,57 @@
     <ClCompile Include="sim\DeepMimicCharController.cpp">
       <Filter>Source Files\sim</Filter>
     </ClCompile>
+    <ClCompile Include="anim\ClipsController.cpp">
+      <Filter>Source Files\anim</Filter>
+    </ClCompile>
+    <ClCompile Include="anim\KinController.cpp">
+      <Filter>Source Files\anim</Filter>
+    </ClCompile>
+    <ClCompile Include="anim\MotionController.cpp">
+      <Filter>Source Files\anim</Filter>
+    </ClCompile>
+    <ClCompile Include="anim\KinCtrlBuilder.cpp">
+      <Filter>Source Files\anim</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\DrawSceneImitateAMP.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\SceneImitateAMP.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="util\DynamicTimeWarper.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\DrawSceneTargetAMP.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\SceneTargetAMP.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\DrawSceneHeadingAMP.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\SceneHeadingAMP.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\SceneDribbleAMP.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\DrawSceneDribbleAMP.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\SceneStrikeAMP.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\DrawSceneStrikeAMP.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\SceneHeadingAMPGetup.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\DrawSceneHeadingAMPGetup.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="util\CircularBuffer.h">
@@ -609,6 +660,57 @@
     </ClInclude>
     <ClInclude Include="sim\DeepMimicCharController.h">
       <Filter>Source Files\sim</Filter>
+    </ClInclude>
+    <ClInclude Include="anim\ClipsController.h">
+      <Filter>Source Files\anim</Filter>
+    </ClInclude>
+    <ClInclude Include="anim\KinController.h">
+      <Filter>Source Files\anim</Filter>
+    </ClInclude>
+    <ClInclude Include="anim\MotionController.h">
+      <Filter>Source Files\anim</Filter>
+    </ClInclude>
+    <ClInclude Include="anim\KinCtrlBuilder.h">
+      <Filter>Source Files\anim</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\DrawSceneImitateAMP.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\SceneImitateAMP.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="util\DynamicTimeWarper.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\DrawSceneTargetAMP.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\SceneTargetAMP.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\DrawSceneHeadingAMP.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\SceneHeadingAMP.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\SceneDribbleAMP.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\DrawSceneDribbleAMP.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\SceneStrikeAMP.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\DrawSceneStrikeAMP.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\SceneHeadingAMPGetup.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\DrawSceneHeadingAMPGetup.h">
+      <Filter>Source Files\scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

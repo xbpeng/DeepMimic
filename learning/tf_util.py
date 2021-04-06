@@ -62,6 +62,16 @@ def calc_logp_gaussian(x_tf, mean_tf, std_tf):
     
     return logp_tf
 
+def bound_loss(val, bound_min, bound_max, axis=-1):
+    violation_min = tf.minimum(val - bound_min, 0)
+    violation_max = tf.maximum(val - bound_max, 0)
+    violation = tf.reduce_sum(tf.square(violation_min), axis=axis) \
+                + tf.reduce_sum(tf.square(violation_max), axis=axis)
+
+    loss = 0.5 * tf.reduce_mean(violation)
+
+    return loss
+
 def calc_bound_loss(x_tf, bound_min, bound_max):
     # penalty for violating bounds
     violation_min = tf.minimum(x_tf - bound_min, 0)

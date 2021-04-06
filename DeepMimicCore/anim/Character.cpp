@@ -62,6 +62,7 @@ bool cCharacter::Init(const std::string& char_file, bool load_draw_shapes)
 	if (succ)
 	{
 		InitDefaultState();
+		RecordEndEffectors(mEndEffectors);
 
 		if (cDrawUtil::EnableDraw() && load_draw_shapes)
 		{
@@ -121,6 +122,11 @@ int cCharacter::GetNumJoints() const
 	return cKinTree::GetNumJoints(mJointMat);
 }
 
+cKinTree::eJointType cCharacter::GetJointType(int joint_id) const
+{
+	return cKinTree::GetJointType(mJointMat, joint_id);
+}
+
 const Eigen::VectorXd& cCharacter::GetPose() const
 {
 	return mPose;
@@ -165,13 +171,13 @@ void cCharacter::SetVel0(const Eigen::VectorXd& vel)
 
 int cCharacter::GetRootID() const
 {
-	int root_id = cKinTree::GetRoot(mJointMat);
+	int root_id = cKinTree::GetRootID();
 	return root_id;
 }
 
 tVector cCharacter::GetRootPos() const
 {
-	tVector pos = cKinTree::GetRootPos(mJointMat, mPose);
+	tVector pos = cKinTree::GetRootPos(mPose);
 	return pos;
 }
 
@@ -183,22 +189,22 @@ void cCharacter::GetRootRotation(tVector& out_axis, double& out_theta) const
 
 tQuaternion cCharacter::GetRootRotation() const
 {
-	return cKinTree::GetRootRot(mJointMat, mPose);
+	return cKinTree::GetRootRot(mPose);
 }
 
 void cCharacter::SetRootPos(const tVector& pos)
 {
-	cKinTree::SetRootPos(mJointMat, pos, mPose);
+	cKinTree::SetRootPos(pos, mPose);
 }
 
 void cCharacter::SetRootPos0(const tVector& pos)
 {
-	cKinTree::SetRootPos(mJointMat, pos, mPose0);
+	cKinTree::SetRootPos(pos, mPose0);
 }
 
 void cCharacter::SetRootRotation(const tQuaternion& q)
 {
-	cKinTree::SetRootRot(mJointMat, q, mPose);
+	cKinTree::SetRootRot(q, mPose);
 }
 
 void cCharacter::RotateRoot(const tQuaternion& rot)
@@ -211,27 +217,27 @@ void cCharacter::RotateRoot(const tQuaternion& rot)
 
 void cCharacter::SetRootVel(const tVector& vel)
 {
-	cKinTree::SetRootVel(mJointMat, vel, mVel);
+	cKinTree::SetRootVel(vel, mVel);
 }
 
 void cCharacter::SetRootAngVel(const tVector& ang_vel)
 {
-	cKinTree::SetRootAngVel(mJointMat, ang_vel, mVel);
+	cKinTree::SetRootAngVel(ang_vel, mVel);
 }
 
 tQuaternion cCharacter::CalcHeadingRot() const
 {
-	return cKinTree::CalcHeadingRot(mJointMat, mPose);
+	return cKinTree::CalcHeadingRot(mPose);
 }
 
 double cCharacter::CalcHeading() const
 {
-	return cKinTree::CalcHeading(mJointMat, mPose);
+	return cKinTree::CalcHeading(mPose);
 }
 
 tMatrix cCharacter::BuildOriginTrans() const
 {
-	return cKinTree::BuildOriginTrans(mJointMat, mPose);
+	return cKinTree::BuildOriginTrans(mPose);
 }
 
 int cCharacter::GetParamOffset(int joint_id) const
@@ -295,17 +301,14 @@ void cCharacter::CalcAABB(tVector& out_min, tVector& out_max) const
 	cKinTree::CalcAABB(mJointMat, mPose, out_min, out_max);
 }
 
-int cCharacter::CalcNumEndEffectors() const
+int cCharacter::GetNumEndEffectors() const
 {
-	int num_end = 0;
-	for (int j = 0; j < GetNumJoints(); ++j)
-	{
-		if (IsEndEffector(j))
-		{
-			++num_end;
-		}
-	}
-	return num_end;
+	return static_cast<int>(mEndEffectors.size());
+}
+
+const Eigen::VectorXi& cCharacter::GetEndEffectors() const
+{
+	return mEndEffectors;
 }
 
 // weights for each joint used to compute the pose error during training
@@ -326,10 +329,10 @@ bool cCharacter::WriteState(const std::string& file, const tMatrix& root_trans) 
 
 	tQuaternion trans_q = cMathUtil::RotMatToQuaternion(root_trans);
 
-	tVector root_pos = cKinTree::GetRootPos(mJointMat, pose);
-	tQuaternion root_rot = cKinTree::GetRootRot(mJointMat, pose);
-	tVector root_vel = cKinTree::GetRootVel(mJointMat, vel);
-	tVector root_ang_vel = cKinTree::GetRootAngVel(mJointMat, vel);
+	tVector root_pos = cKinTree::GetRootPos(pose);
+	tQuaternion root_rot = cKinTree::GetRootRot(pose);
+	tVector root_vel = cKinTree::GetRootVel(vel);
+	tVector root_ang_vel = cKinTree::GetRootAngVel(vel);
 
 	root_pos[3] = 1;
 	root_pos = root_trans * root_pos;
@@ -339,10 +342,10 @@ bool cCharacter::WriteState(const std::string& file, const tMatrix& root_trans) 
 	root_vel = root_trans * root_vel;
 	root_ang_vel = root_trans * root_ang_vel;
 
-	cKinTree::SetRootPos(mJointMat, root_pos, pose);
-	cKinTree::SetRootRot(mJointMat, root_rot, pose);
-	cKinTree::SetRootVel(mJointMat, root_vel, vel);
-	cKinTree::SetRootAngVel(mJointMat, root_ang_vel, vel);
+	cKinTree::SetRootPos(root_pos, pose);
+	cKinTree::SetRootRot(root_rot, pose);
+	cKinTree::SetRootVel(root_vel, vel);
+	cKinTree::SetRootAngVel(root_ang_vel, vel);
 
 	std::string json = BuildStateJson(pose, vel);
 	FILE* f = cFileUtil::OpenFile(file, "w");
@@ -492,4 +495,23 @@ bool cCharacter::LoadMeshes(const std::string& char_file, std::vector<std::share
 	}
 
 	return succ;
+}
+
+void cCharacter::RecordEndEffectors(Eigen::VectorXi& out_end_effs) const
+{
+	std::vector<int> effs;
+	for (int j = 0; j < GetNumJoints(); ++j)
+	{
+		if (IsEndEffector(j))
+		{
+			effs.push_back(j);
+		}
+	}
+
+	out_end_effs.resize(effs.size());
+	for (size_t i = 0; i < effs.size(); ++i)
+	{
+		int joint_id = effs[i];
+		out_end_effs[i] = joint_id;
+	}
 }

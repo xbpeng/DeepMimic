@@ -34,20 +34,11 @@ void cCharController::RecordState(Eigen::VectorXd& out_state)
 {
 }
 
-void cCharController::RecordGoal(Eigen::VectorXd& out_goal) const
-{
-}
-
 void cCharController::RecordAction(Eigen::VectorXd& out_action) const
 {
 }
 
 int cCharController::GetStateSize() const
-{
-	return 0;
-}
-
-int cCharController::GetGoalSize() const
 {
 	return 0;
 }
@@ -77,13 +68,6 @@ void cCharController::BuildStateOffsetScale(Eigen::VectorXd& out_offset, Eigen::
 	out_scale = Eigen::VectorXd::Ones(state_size);
 }
 
-void cCharController::BuildGoalOffsetScale(Eigen::VectorXd& out_offset, Eigen::VectorXd& out_scale) const
-{
-	int goal_size = GetGoalSize();
-	out_offset = Eigen::VectorXd::Zero(goal_size);
-	out_scale = Eigen::VectorXd::Ones(goal_size);
-}
-
 void cCharController::BuildActionOffsetScale(Eigen::VectorXd& out_offset, Eigen::VectorXd& out_scale) const
 {
 	int action_size = GetActionSize();
@@ -102,12 +86,6 @@ void cCharController::BuildStateNormGroups(Eigen::VectorXi& out_groups) const
 {
 	int state_size = GetStateSize();
 	out_groups = gNormGroupSingle * Eigen::VectorXi::Ones(state_size);
-}
-
-void cCharController::BuildGoalNormGroups(Eigen::VectorXi& out_groups) const
-{
-	int goal_size = GetGoalSize();
-	out_groups = gNormGroupSingle * Eigen::VectorXi::Ones(goal_size);
 }
 
 double cCharController::GetRewardMin() const

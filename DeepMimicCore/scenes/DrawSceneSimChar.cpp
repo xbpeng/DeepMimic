@@ -386,22 +386,29 @@ void cDrawSceneSimChar::ApplyUIForce(double time_step)
 
 void cDrawSceneSimChar::DrawObjs() const
 {
+	cDrawUtil::SetLineWidth(1.0);
+
 	int num_objs = mScene->GetNumObjs();
 	for (int i = 0; i < num_objs; ++i)
 	{
-		const cSceneSimChar::tObjEntry& entry = mScene->GetObjEntry(i);
-		if (entry.IsValid())
-		{
-			const auto& obj = entry.mObj;
-			cDrawUtil::SetColor(entry.mColor);
-			cDrawObj::Draw(obj.get(), cDrawUtil::eDrawSolid);
+		DrawObj(i);
+	}
+}
 
-			tVector line_col = GetLineColor();
-			if (line_col[3] > 0)
-			{
-				cDrawUtil::SetColor(line_col);
-				cDrawObj::Draw(obj.get(), cDrawUtil::eDrawWireSimple);
-			}
+void cDrawSceneSimChar::DrawObj(int obj_id) const
+{
+	const cSceneSimChar::tObjEntry& entry = mScene->GetObjEntry(obj_id);
+	if (entry.IsValid())
+	{
+		const auto& obj = entry.mObj;
+		cDrawUtil::SetColor(entry.mColor);
+		cDrawObj::Draw(obj.get(), cDrawUtil::eDrawSolid);
+
+		tVector line_col = GetLineColor();
+		if (line_col[3] > 0)
+		{
+			cDrawUtil::SetColor(line_col);
+			cDrawObj::Draw(obj.get(), cDrawUtil::eDrawWireSimple);
 		}
 	}
 }
@@ -534,9 +541,9 @@ void cDrawSceneSimChar::DrawInfo() const
 void cDrawSceneSimChar::DrawPoliInfo() const
 {
 	const auto& character = mScene->GetCharacter();
-	const cDeepMimicCharController* trl_ctrl = dynamic_cast<cDeepMimicCharController*>(character->GetController().get());
-	if (trl_ctrl != nullptr)
+	const cDeepMimicCharController* char_ctrl = dynamic_cast<cDeepMimicCharController*>(character->GetController().get());
+	if (char_ctrl != nullptr)
 	{
-		cDrawSimCharacter::DrawInfoValLog(trl_ctrl->GetValLog(), mCamera);
+		cDrawSimCharacter::DrawInfoValLog(char_ctrl->GetValLog(), mCamera);
 	}
 }

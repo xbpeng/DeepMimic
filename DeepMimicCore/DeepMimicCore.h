@@ -73,6 +73,14 @@ public:
 	virtual double GetRewardFail(int agent_id);
 	virtual double GetRewardSucc(int agent_id);
 
+	virtual bool EnableAMPTaskReward() const;
+	virtual int GetAMPObsSize() const;
+	virtual std::vector<double> GetAMPObsOffset() const;
+	virtual std::vector<double> GetAMPObsScale() const;
+	virtual std::vector<int> GetAMPObsNormGroup() const;
+	virtual std::vector<double> RecordAMPObsAgent(int agent_id);
+	virtual std::vector<double> RecordAMPObsExpert(int agent_id);
+
 	virtual bool IsEpisodeEnd() const;
 	virtual bool CheckValidEpisode() const;
 	virtual int CheckTerminate(int agent_id) const;

@@ -22,7 +22,6 @@ class RLAgent(ABC):
 
     NAME = "None"
     
-    UPDATE_PERIOD_KEY = "UpdatePeriod"
     ITERS_PER_UPDATE = "ItersPerUpdate"
     DISCOUNT_KEY = "Discount"
     MINI_BATCH_SIZE_KEY = "MiniBatchSize"
@@ -52,9 +51,7 @@ class RLAgent(ABC):
         self.path = Path()
         self.iter = int(0)
         self.start_time = time.time()
-        self._update_counter = 0
 
-        self.update_period = 1.0 # simulated time (seconds) before each training update
         self.iters_per_update = int(1)
         self.discount = 0.95
         self.mini_batch_size = int(32)
@@ -92,7 +89,7 @@ class RLAgent(ABC):
     def __str__(self):
         action_space_str = str(self.get_action_space())
         info_str = ""
-        info_str += '"ID": {:d},\n "Type": "{:s}",\n "ActionSpace": "{:s}",\n "StateDim": {:d},\n "GoalDim": {:d},\n "ActionDim": {:d}'.format(
+        info_str += '" ID": {:d},\n "Type": "{:s}",\n "ActionSpace": "{:s}",\n "StateDim": {:d},\n "GoalDim": {:d},\n "ActionDim": {:d}'.format(
             self.id, self.NAME, action_space_str[action_space_str.rfind('.') + 1:], self.get_state_size(), self.get_goal_size(), self.get_action_size())
         return "{\n" + info_str + "\n}"
 
@@ -123,31 +120,26 @@ class RLAgent(ABC):
     def update(self, timestep):
         if self.need_new_action():
             self._update_new_action()
-
-        if (self._mode == self.Mode.TRAIN and self.enable_training):
-            self._update_counter += timestep
-
-            while self._update_counter >= self.update_period:
-                self._train()
-                self._update_exp_params()
-                self.world.env.set_sample_count(self._total_sample_count)
-                self._update_counter -= self.update_period
-
         return
 
     def end_episode(self):
         if (self.path.pathlength() > 0):
             self._end_path()
 
-            if (self._mode == self.Mode.TRAIN or self._mode == self.Mode.TRAIN_END):
+            if (self._mode == self.Mode.TRAIN):
                 if (self.enable_training and self.path.pathlength() > 0):
                     self._store_path(self.path)
+                    
+                    if (self._valid_train_step()):
+                        self._train()
+                        self._update_exp_params()
+                        self.world.env.set_sample_count(self._total_sample_count)
+
             elif (self._mode == self.Mode.TEST):
                 self._update_test_return(self.path)
             else:
                 assert False, Logger.print("Unsupported RL agent mode" + str(self._mode))
 
-            self._update_mode()
         return
 
     def has_goal(self):
@@ -220,28 +212,25 @@ class RLAgent(ABC):
         return self.world.env.need_new_action(self.id)
 
     def _build_normalizers(self):
-        self.s_norm = Normalizer(self.get_state_size(), self.world.env.build_state_norm_groups(self.id))
-        self.s_norm.set_mean_std(-self.world.env.build_state_offset(self.id), 
+        self._s_norm = Normalizer(self.get_state_size(), self.world.env.build_state_norm_groups(self.id))
+        self._s_norm.set_mean_std(-self.world.env.build_state_offset(self.id), 
                                  1 / self.world.env.build_state_scale(self.id))
 
-        self.g_norm = Normalizer(self.get_goal_size(), self.world.env.build_goal_norm_groups(self.id))
-        self.g_norm.set_mean_std(-self.world.env.build_goal_offset(self.id), 
+        self._g_norm = Normalizer(self.get_goal_size(), self.world.env.build_goal_norm_groups(self.id))
+        self._g_norm.set_mean_std(-self.world.env.build_goal_offset(self.id), 
                                  1 / self.world.env.build_goal_scale(self.id))
 
-        self.a_norm = Normalizer(self.world.env.get_action_size())
-        self.a_norm.set_mean_std(-self.world.env.build_action_offset(self.id), 
+        self._a_norm = Normalizer(self.world.env.get_action_size())
+        self._a_norm.set_mean_std(-self.world.env.build_action_offset(self.id), 
                                  1 / self.world.env.build_action_scale(self.id))
         return
 
     def _build_bounds(self):
-        self.a_bound_min = self.world.env.build_action_bound_min(self.id)
-        self.a_bound_max = self.world.env.build_action_bound_max(self.id)
+        self._a_bound_min = self.world.env.build_action_bound_min(self.id)
+        self._a_bound_max = self.world.env.build_action_bound_max(self.id)
         return
 
     def _load_params(self, json_data):
-        if (self.UPDATE_PERIOD_KEY in json_data):
-            self.update_period = int(json_data[self.UPDATE_PERIOD_KEY])
-        
         if (self.ITERS_PER_UPDATE in json_data):
             self.iters_per_update = int(json_data[self.ITERS_PER_UPDATE])
                     
@@ -279,6 +268,8 @@ class RLAgent(ABC):
             self.exp_params_end.load(json_data[self.EXP_PARAM_END_KEY])
         
         num_procs = MPIUtil.get_num_procs()
+        self.replay_buffer_size = int(np.ceil(self.replay_buffer_size / num_procs))
+
         self._local_mini_batch_size = int(np.ceil(self.mini_batch_size / num_procs))
         self._local_mini_batch_size = np.maximum(self._local_mini_batch_size, 1)
         self.mini_batch_size = self._local_mini_batch_size * num_procs
@@ -361,27 +352,7 @@ class RLAgent(ABC):
         path_reward = path.calc_return()
         self.test_return += path_reward
         self.test_episode_count += 1
-        return
 
-    def _update_mode(self):
-        if (self._mode == self.Mode.TRAIN):
-            self._update_mode_train()
-        elif (self._mode == self.Mode.TRAIN_END):
-            self._update_mode_train_end()
-        elif (self._mode == self.Mode.TEST):
-            self._update_mode_test()
-        else:
-            assert False, Logger.print("Unsupported RL agent mode" + str(self._mode))
-        return
-
-    def _update_mode_train(self):
-        return
-
-    def _update_mode_train_end(self):
-        self._init_mode_test()
-        return
-
-    def _update_mode_test(self):
         if (self.test_episode_count * MPIUtil.get_num_procs() >= self.test_episodes):
             global_return = MPIUtil.reduce_sum(self.test_return)
             global_count = MPIUtil.reduce_sum(self.test_episode_count)
@@ -390,15 +361,12 @@ class RLAgent(ABC):
 
             if self.enable_training:
                 self._init_mode_train()
+
         return
 
     def _init_mode_train(self):
         self._mode = self.Mode.TRAIN
         self.world.env.set_mode(self._mode)
-        return
-
-    def _init_mode_train_end(self):
-        self._mode = self.Mode.TRAIN_END
         return
 
     def _init_mode_test(self):
@@ -499,19 +467,19 @@ class RLAgent(ABC):
 
     def _record_normalizers(self, path):
         states = np.array(path.states)
-        self.s_norm.record(states)
+        self._s_norm.record(states)
 
         if self.has_goal():
             goals = np.array(path.goals)
-            self.g_norm.record(goals)
+            self._g_norm.record(goals)
 
         return
 
     def _update_normalizers(self):
-        self.s_norm.update()
+        self._s_norm.update()
 
         if self.has_goal():
-            self.g_norm.update()
+            self._g_norm.update()
         return
 
     def _train(self):
@@ -531,10 +499,10 @@ class RLAgent(ABC):
                     wall_time /= 60 * 60 # store time in hours
 
                     has_goal = self.has_goal()
-                    s_mean = np.mean(self.s_norm.mean)
-                    s_std = np.mean(self.s_norm.std)
-                    g_mean = np.mean(self.g_norm.mean) if has_goal else 0
-                    g_std = np.mean(self.g_norm.std) if has_goal else 0
+                    s_mean = np.mean(self._s_norm.mean)
+                    s_std = np.mean(self._s_norm.std)
+                    g_mean = np.mean(self._g_norm.mean) if has_goal else 0
+                    g_std = np.mean(self._g_norm.std) if has_goal else 0
 
                     self.logger.log_tabular("Iteration", self.iter)
                     self.logger.log_tabular("Wall_Time", wall_time)
@@ -561,7 +529,6 @@ class RLAgent(ABC):
                     end_training = self.enable_testing()
 
         else:
-
             Logger.print("Agent " + str(self.id))
             Logger.print("Samples: " + str(self._total_sample_count))
             Logger.print("") 
@@ -575,7 +542,7 @@ class RLAgent(ABC):
             self._need_normalizer_update = self.normalizer_samples > self._total_sample_count
 
         if end_training:
-            self._init_mode_train_end()
+            self._init_mode_test()
  
         return
 
@@ -583,10 +550,10 @@ class RLAgent(ABC):
         return MPIUtil.get_num_procs() * self.iters_per_update
 
     def _valid_train_step(self):
-        return True 
+        exp_samples = self.replay_buffer.count_filtered(self.EXP_ACTION_FLAG)
+        return (exp_samples >= self._local_mini_batch_size)
 
     def _log_exp_params(self):
         self.logger.log_tabular("Exp_Rate", self.exp_params_curr.rate)
         self.logger.log_tabular("Exp_Noise", self.exp_params_curr.noise)
-        self.logger.log_tabular("Exp_Temp", self.exp_params_curr.temp)
         return

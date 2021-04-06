@@ -82,7 +82,7 @@ class Logger:
         """
         if (MPIUtil.is_root_proc()):
             vals = []
-            Logger.print("-"*37)
+            Logger.print("-" * 39)
             for key in self.log_headers:
                 val = self.log_current_row.get(key, "")
                 if isinstance(val, float):
@@ -91,9 +91,9 @@ class Logger:
                     valstr = str(val)
                 else: 
                     valstr = val
-                Logger.print("| %15s | %15s |"%(key, valstr))
+                Logger.print("| %16s | %16s |"%(key, valstr))
                 vals.append(val)
-            Logger.print("-" * 37)
+            Logger.print("-" * 39)
         return
 
     def dump_tabular(self):

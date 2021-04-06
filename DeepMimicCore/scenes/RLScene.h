@@ -59,6 +59,14 @@ public:
 	virtual void SetSampleCount(int count);
 	virtual void SetMode(eMode mode);
 
+	virtual bool EnableAMPTaskReward() const = 0;
+	virtual int GetAMPObsSize() const = 0;
+	virtual void GetAMPObsOffset(Eigen::VectorXd& out_data) const = 0;
+	virtual void GetAMPObsScale(Eigen::VectorXd& out_data) const = 0;
+	virtual void GetAMPObsNormGroup(Eigen::VectorXi& out_data) const = 0;
+	virtual void RecordAMPObsAgent(int agent_id, Eigen::VectorXd& out_data) = 0;
+	virtual void RecordAMPObsExpert(int agent_id, Eigen::VectorXd& out_data) = 0;
+	
 	virtual void LogVal(int agent_id, double val) = 0;
 
 protected:

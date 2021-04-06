@@ -497,6 +497,101 @@ double cDeepMimicCore::GetRewardSucc(int agent_id)
 	return 0;
 }
 
+bool cDeepMimicCore::EnableAMPTaskReward() const
+{
+	const auto& rl_scene = GetRLScene();
+	if (rl_scene != nullptr)
+	{
+		return rl_scene->EnableAMPTaskReward();
+	}
+	return false;
+}
+
+int cDeepMimicCore::GetAMPObsSize() const
+{
+	const auto& rl_scene = GetRLScene();
+	if (rl_scene != nullptr)
+	{
+		return rl_scene->GetAMPObsSize();
+	}
+	return 0;
+}
+
+std::vector<double> cDeepMimicCore::GetAMPObsOffset() const
+{
+	const auto& rl_scene = GetRLScene();
+	if (rl_scene != nullptr)
+	{
+		Eigen::VectorXd offset;
+		rl_scene->GetAMPObsOffset(offset);
+
+		std::vector<double> out_offset;
+		ConvertVector(offset, out_offset);
+		return out_offset;
+	}
+	return std::vector<double>(0);
+}
+
+std::vector<double> cDeepMimicCore::GetAMPObsScale() const
+{
+	const auto& rl_scene = GetRLScene();
+	if (rl_scene != nullptr)
+	{
+		Eigen::VectorXd scale;
+		rl_scene->GetAMPObsScale(scale);
+
+		std::vector<double> out_scale;
+		ConvertVector(scale, out_scale);
+		return out_scale;
+	}
+	return std::vector<double>(0);
+}
+
+std::vector<int> cDeepMimicCore::GetAMPObsNormGroup() const
+{
+	const auto& rl_scene = GetRLScene();
+	if (rl_scene != nullptr)
+	{
+		Eigen::VectorXi groups;
+		rl_scene->GetAMPObsNormGroup(groups);
+
+		std::vector<int> out_groups;
+		ConvertVector(groups, out_groups);
+		return out_groups;
+	}
+	return std::vector<int>(0);
+}
+
+std::vector<double> cDeepMimicCore::RecordAMPObsAgent(int agent_id)
+{
+	const auto& rl_scene = GetRLScene();
+	if (rl_scene != nullptr)
+	{
+		Eigen::VectorXd obs;
+		rl_scene->RecordAMPObsAgent(agent_id, obs);
+
+		std::vector<double> out_obs;
+		ConvertVector(obs, out_obs);
+		return out_obs;
+	}
+	return std::vector<double>(0);
+}
+
+std::vector<double> cDeepMimicCore::RecordAMPObsExpert(int agent_id)
+{
+	const auto& rl_scene = GetRLScene();
+	if (rl_scene != nullptr)
+	{
+		Eigen::VectorXd obs;
+		rl_scene->RecordAMPObsExpert(agent_id, obs);
+
+		std::vector<double> out_obs;
+		ConvertVector(obs, out_obs);
+		return out_obs;
+	}
+	return std::vector<double>(0);
+}
+
 bool cDeepMimicCore::IsEpisodeEnd() const
 {
 	return mScene->IsEpisodeEnd();

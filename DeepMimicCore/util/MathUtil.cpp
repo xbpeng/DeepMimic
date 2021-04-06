@@ -1,6 +1,8 @@
 #include "MathUtil.h"
 #include <time.h>
 
+const double gThetaMin = 0.000001;
+
 cRand cMathUtil::gRand = cRand();
 
 int cMathUtil::Clamp(int val, int min, int max)
@@ -41,6 +43,19 @@ double cMathUtil::NormalizeAngle(double theta)
 		norm_theta = 2 * M_PI + norm_theta;
 	}
 	return norm_theta;
+}
+
+tQuaternion cMathUtil::StandardizeQuat(const tQuaternion& quat)
+{
+	tQuaternion norm_q = quat;
+	if (norm_q.w() < 0)
+	{
+		norm_q.w() *= -1;
+		norm_q.x() *= -1;
+		norm_q.y() *= -1;
+		norm_q.z() *= -1;
+	}
+	return norm_q;
 }
 
 double cMathUtil::RandDouble()
@@ -553,6 +568,58 @@ tQuaternion cMathUtil::MirrorQuaternion(const tQuaternion& q, eAxis axis)
 	mirror_q.y() = (axis == eAxisY) ? q.y() : -q.y();
 	mirror_q.z() = (axis == eAxisZ) ? q.z() : -q.z();
 	return mirror_q;
+}
+
+void cMathUtil::ExpMapToAxisAngle(const tVector& exp_map, tVector& out_axis, double& out_theta)
+{
+	assert(exp_map[gExpMapDim] == 0);
+
+	double theta = exp_map.segment(0, gExpMapDim).norm();
+	if (theta > gThetaMin)
+	{
+		out_axis = exp_map / theta;
+		out_axis[gExpMapDim] = 0;
+		out_theta = NormalizeAngle(theta);
+	}
+	else
+	{
+		out_axis = tVector(0, 0, 1, 0);
+		out_theta = 0;
+	}
+}
+
+tQuaternion cMathUtil::ExpMapToQuaternion(const tVector& exp_map)
+{
+	tVector axis;
+	double theta;
+	ExpMapToAxisAngle(exp_map, axis, theta);
+
+	tQuaternion q = cMathUtil::AxisAngleToQuaternion(axis, theta);
+	return q;
+}
+
+tVector cMathUtil::AxisAngleToExpMap(const tVector& axis, double theta)
+{
+	tVector exp_map = theta * axis;
+	return exp_map;
+}
+
+tVector cMathUtil::QuaternionToExpMap(const tQuaternion& q)
+{
+	tVector axis;
+	double theta;
+	QuaternionToAxisAngle(q, axis, theta);
+
+	tVector exp_map = AxisAngleToExpMap(axis, theta);
+	return exp_map;
+}
+
+void cMathUtil::CalcNormalTangent(const tQuaternion& q, tVector& out_norm, tVector& out_tan)
+{
+	const tVector norm0 = tVector(0, 1, 0, 0);
+	const tVector tan0 = tVector(1, 0, 0, 0);
+	out_norm = QuatRotVec(q, norm0);
+	out_tan = QuatRotVec(q, tan0);
 }
 
 double cMathUtil::Sign(double val)
