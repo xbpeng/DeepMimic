@@ -235,3 +235,7 @@ ln /path/to/libGLEW.so.2.1.0 /usr/lib/x86----/libGLEW.so.2.1.0
 ImportError: libBulletDynamics.so.2.88: cannot open shared object file: No such file or directory
 export LD_LIBRARY_PATH=/usr/local/lib/ ( can be temporary when run in terminal) 
 (libBullet file are present in that path - gets installed in that path after the command sudo make install while installing Bullet)
+
+## Misc.
+- A ROS compatible URDF of the humanoid is available here: https://github.com/EricVoll/amp_motion_conversion
+
