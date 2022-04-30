@@ -2,16 +2,27 @@ BIN=Main
 OBJ_DIR = objs
 MKDIR = mkdir -p
 
-EIGEN_DIR = ../../libraries/eigen
-BULLET_INC_DIR = ../../libraries/bullet3/src
+# Reminder: these variables must be set as environment variables if the corresponding dev libs are not installed in the system: eg:
+# export EIGEN_DIR = ../../libraries/eigen
+# export BULLET_INC_DIR = ../../libraries/bullet3/src
+# export BULLET_INC_DIR = third/bullet3-2.88/build_cmake/install/include/bullet/
+# export BULLET_LIB_DIR = third/bullet3-2.88/build_cmake/install/lib
+# export GLEW_INC_DIR = third/glew-2.1.0/install/usr/include/
+# export GLEW_LIB_DIR = third/glew-2.1.0/lib/
+# export FREEGLUT_INC_DIR = third/freeglut-3.0.0/install/include/
+# export FREEGLUT_LIB_DIR = third/freeglut-3.0.0/install/lib
 
 PYTHON_INC = /usr/include/python3.6m
 PYTHON_LIB = /usr/lib/ -lpython3.6m
 
 INC = -I./ \
 	-I$(EIGEN_DIR) \
+	-I$(BULLET_INC_DIR) \
+	-I$(GLEW_INC_DIR) \
+	-I$(FREEGLUT_INC_DIR) \
 	-I$(BULLET_INC_DIR)
 
+LIBDIRS = -L$(GLEW_LIB_DIR) -L$(FREEGLUT_LIB_DIR) -L$(BULLET_LIB_DIR)
 LIBS = -lGLEW -lGL -lGLU -lglut -lBulletDynamics -lBulletCollision -lLinearMath -lm -lstdc++
 
 CC = clang++
@@ -43,7 +54,7 @@ print:
 python: $(OUT_DIRS) $(OBJ)
 	swig -c++ -python DeepMimicCore.i
 	$(CC) -c -g $(CFLAGS) $(INC) $(LIBS) DeepMimicCore.cpp DeepMimicCore_wrap.cxx -I$(PYTHON_INC)
-	$(CC) -shared $(CFLAGS) $(OBJ) $(LIBS) DeepMimicCore_wrap.o -o _DeepMimicCore.so -L$(PYTHON_LIB)
+	$(CC) -shared $(CFLAGS) $(OBJ) $(LIBS) DeepMimicCore_wrap.o -o _DeepMimicCore.so -L$(PYTHON_LIB) $(LIBDIRS)
 
 $(OBJ_DIR)/%.o: %.cpp
 	$(CC) -c -g $(CFLAGS) $(INC) -o $@ $<
