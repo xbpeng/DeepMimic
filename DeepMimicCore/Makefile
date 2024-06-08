@@ -12,8 +12,14 @@ MKDIR = mkdir -p
 # export FREEGLUT_INC_DIR = third/freeglut-3.0.0/install/include/
 # export FREEGLUT_LIB_DIR = third/freeglut-3.0.0/install/lib
 
-PYTHON_INC = /usr/include/python3.6m
-PYTHON_LIB = /usr/lib/ -lpython3.6m
+PYTHON_INC = /usr/include/python3.7
+PYTHON_LIB = /usr/lib/python3.7
+EIGEN_DIR = ../../eigen-3.3.7
+# BULLET_INC_DIR = ../../bullet3-2.88/src
+BULLET_INC_DIR = /usr/local/include/bullet
+BULLET_LIB_DIR = /usr/local/lib
+GLEW_LIB_DIR = /usr/lib64
+FREEGLUT_LIB_DIR = ../../freeglut-3.0.0
 
 INC = -I./ \
 	-I$(EIGEN_DIR) \
@@ -23,7 +29,8 @@ INC = -I./ \
 	-I$(BULLET_INC_DIR)
 
 LIBDIRS = -L$(GLEW_LIB_DIR) -L$(FREEGLUT_LIB_DIR) -L$(BULLET_LIB_DIR)
-LIBS = -lGLEW -lGL -lGLU -lglut -lBulletDynamics -lBulletCollision -lLinearMath -lm -lstdc++
+# LIBS = -lGLEW -lGL -lGLU -lglut -lBulletDynamics -lBulletCollision -lLinearMath -lm -lstdc++
+LIBS = -L$(BULLET_LIB_DIR) -lGLEW -lGL -lGLU -lglut -lBulletDynamics -lBulletCollision -lLinearMath -lm -lstdc++
 
 CC = clang++
 CFLAGS = -std=c++11 -O3 -Wall -fPIC 
