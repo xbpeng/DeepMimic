@@ -10,52 +10,45 @@ cSceneKinChar::~cSceneKinChar()
 
 void cSceneKinChar::Init()
 {
-	bool succ = BuildCharacters();
+	BuildCharacter();
+	BuildController();
 }
 
 void cSceneKinChar::ParseArgs(const std::shared_ptr<cArgParser>& parser)
 {
 	cScene::ParseArgs(parser);
 	ParseCharParams(parser, mCharParams);
+	ParseCharCtrlParams(parser, mCtrlParams);
 }
 
 void cSceneKinChar::Reset()
 {
-	ResetCharacters();
+	ResetCharacter();
 }
 
 void cSceneKinChar::Clear()
 {
-	// int num_char = static_cast<int>(mCharParams.size());
-	// for (int i=0; i < num_char; ++i)
-	// {
-	// 	mChars[i].reset();
-	// }
-	mChars.clear();
+	mChar.reset();
 }
 
 void cSceneKinChar::Update(double time_elapsed)
 {
-	UpdateCharacters(time_elapsed);
+	UpdateCharacter(time_elapsed);
 }
 
-int cSceneKinChar::GetNumCharacter()
+const std::shared_ptr<cKinCharacter>& cSceneKinChar::GetCharacter() const
 {
-	return static_cast<int>(mCharParams.size());
-}
-const std::shared_ptr<cKinCharacter>& cSceneKinChar::GetCharacter(int id) const
-{ 
-	return mChars[id];
+	return mChar;
 }
 
 tVector cSceneKinChar::GetCharPos() const
 {
-	return GetCharacter(0)->GetRootPos();
+	return GetCharacter()->GetRootPos();
 }
 
 double cSceneKinChar::GetTime() const
 {
-	return GetCharacter(0)->GetTime();
+	return GetCharacter()->GetTime();
 }
 
 std::string cSceneKinChar::GetName() const
@@ -63,74 +56,78 @@ std::string cSceneKinChar::GetName() const
 	return "Kinematic Char";
 }
 
-void cSceneKinChar::ParseCharParams(const std::shared_ptr<cArgParser>& parser, std::vector<cKinCharacter::tParams>& out_params) const
+void cSceneKinChar::ParseCharParams(const std::shared_ptr<cArgParser>& parser, cKinCharacter::tParams& out_param) const
 {
-	bool succ = true;
+	std::string char_file;
+	bool succ = parser->ParseString("character_file", char_file);
 
-	std::vector<std::string> char_files;
-	succ = parser->ParseStrings("character_files", char_files);
-
-	std::string state_file = "";
-	succ = parser->ParseString("state_file", state_file);
-
-	std::vector<std::string> motion_files;
-	succ = parser->ParseStrings("motion_files", motion_files);
-
-	double init_pos_xs;
-	parser->ParseDouble("char_init_pos_x", init_pos_xs);
-
-	int num_files = static_cast<int>(char_files.size());
-	out_params.resize(num_files);
-
-	for (int i = 0; i < num_files; ++i)
+	if (succ)
 	{
-		cKinCharacter::tParams& params = out_params[i];
-		params.mCharFile = char_files[i];
-		params.mMotionFile = motion_files[i];
-		params.mStateFile = state_file;
-		params.mOrigin[0] = init_pos_xs;
+		std::string state_file = "";
+		parser->ParseString("state_file", state_file);
+
+		double init_pos_x = 0;
+		parser->ParseDouble("char_init_pos_xs", init_pos_x);
+
+		out_param.mCharFile = char_file;
+		out_param.mStateFile = state_file;
+		out_param.mOrigin[0] = init_pos_x;
+	}
+	else
+	{
+		printf("No character files provided\n");
 	}
 }
 
-bool cSceneKinChar::BuildCharacters()
+void cSceneKinChar::ParseCharCtrlParams(const std::shared_ptr<cArgParser>& parser, cKinCtrlBuilder::tCtrlParams& out_params) const
 {
-	int num_char = static_cast<int>(mCharParams.size());
-	bool succ = false;
-	mChars.clear();
-	for (int i=0; i < num_char; ++i)
-	{
-		std::shared_ptr<cKinCharacter> curr_char;
-		auto& params = mCharParams[i];
-		params.mID = i;
-		params.mLoadDrawShapes = true;
-		succ = BuildCharacter(params, curr_char);
-		mChars.push_back(curr_char);
-	}	
+	std::string motion_file;
+	parser->ParseString("motion_file", motion_file);
+
+	std::string kin_ctrl_str;
+	parser->ParseString("kin_ctrl", kin_ctrl_str);
+
+	auto& ctrl_params = out_params;
+	const std::string& type_str = kin_ctrl_str;
+	cKinCtrlBuilder::ParseCharCtrl(type_str, ctrl_params.mCharCtrl);
+	ctrl_params.mCtrlFile = motion_file;
+}
+
+bool cSceneKinChar::BuildCharacter()
+{
+	mChar.reset();
+
+	auto& params = mCharParams;
+	params.mID = 0;
+	params.mLoadDrawShapes = true;
+
+	mChar = std::shared_ptr<cKinCharacter>(new cKinCharacter());
+	bool succ = mChar->Init(params);
+
 	return succ;
 }
 
-bool cSceneKinChar::BuildCharacter(const cKinCharacter::tParams& params, std::shared_ptr<cKinCharacter>& out_char) const
+void cSceneKinChar::ResetCharacter()
 {
-	out_char = std::shared_ptr<cKinCharacter>(new cKinCharacter());
-	bool succ = out_char->Init(params);
+	mChar->Reset();
+}
+
+void cSceneKinChar::UpdateCharacter(double timestep)
+{
+	mChar->Update(timestep);
+}
+
+bool cSceneKinChar::BuildController()
+{
+	const auto& kin_char = GetCharacter();
+	mCtrlParams.mChar = kin_char;
+
+	std::shared_ptr<cKinController> ctrl;
+	bool succ = cKinCtrlBuilder::BuildController(mCtrlParams, ctrl);
+	if (succ && ctrl != nullptr)
+	{
+		kin_char->SetController(ctrl);
+	}
+
 	return succ;
 }
-
-void cSceneKinChar::ResetCharacters()
-{
-	int num_char = static_cast<int>(mCharParams.size());
-	for (int i=0; i < num_char; ++i)
-	{
-		mChars[i]->Reset();
-	}
-}
-
-void cSceneKinChar::UpdateCharacters(double timestep)
-{
-	int num_char = static_cast<int>(mCharParams.size());
-	for (int i=0; i < num_char; ++i)
-	{
-		mChars[i]->Update(timestep);
-	}
-}
-
