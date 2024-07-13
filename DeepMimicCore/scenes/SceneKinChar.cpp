@@ -13,7 +13,7 @@ void cSceneKinChar::Init()
 	bool succ = BuildCharacters();
 	if (succ)
     {
-        succ = BuildController();
+        succ = BuildControllers();
     }
 }
 
@@ -102,10 +102,16 @@ void cSceneKinChar::ParseCharCtrlParams(const std::shared_ptr<cArgParser>& parse
 	std::string kin_ctrl_str;
 	parser->ParseString("kin_ctrl", kin_ctrl_str);
 
-	auto& ctrl_params = out_params[0];
-	const std::string& type_str = kin_ctrl_str;
-	cKinCtrlBuilder::ParseCharCtrl(type_str, ctrl_params.mCharCtrl);
-	ctrl_params.mCtrlFile = motion_files[0];
+	int num_files = static_cast<int>(motion_files.size());
+	out_params.resize(num_files);
+
+	for (int i = 0; i < num_files; ++i)
+	{
+		auto& ctrl_params = out_params[i];
+		const std::string& type_str = kin_ctrl_str;
+		cKinCtrlBuilder::ParseCharCtrl(type_str, ctrl_params.mCharCtrl);
+		ctrl_params.mCtrlFile = motion_files[i];
+	}
 }
 
 bool cSceneKinChar::BuildCharacters()
@@ -121,7 +127,7 @@ bool cSceneKinChar::BuildCharacters()
 		params.mLoadDrawShapes = true;
 		succ = BuildCharacter(params, curr_char);
 		mChars.push_back(curr_char);
-	}	
+	}
 	return succ;
 }
 
@@ -150,17 +156,25 @@ void cSceneKinChar::UpdateCharacters(double timestep)
 	}
 }
 
-bool cSceneKinChar::BuildController()
+bool cSceneKinChar::BuildControllers()
 {
-	const auto& kin_char = GetCharacter(0);
-	mCtrlParams[0].mChar = kin_char;
-
-	std::shared_ptr<cKinController> ctrl;
-	bool succ = cKinCtrlBuilder::BuildController(mCtrlParams[0], ctrl);
-	if (succ && ctrl != nullptr)
+	int num_char = static_cast<int>(mChars.size());
+	bool succ = false;
+	for (int i = 0; i < num_char; ++i)
 	{
-		kin_char->SetController(ctrl);
-	}
+		auto& kin_char = mChars[i];
+		mCtrlParams[i].mChar = kin_char;
 
-	return succ;
+		std::shared_ptr<cKinController> ctrl;
+		succ = cKinCtrlBuilder::BuildController(mCtrlParams[i], ctrl);
+		if (succ && ctrl != nullptr)
+		{
+			kin_char->SetController(ctrl);
+		}
+		else
+		{
+			return false;  // Return false if any controller fails to build
+		}
+	}
+	return true;
 }

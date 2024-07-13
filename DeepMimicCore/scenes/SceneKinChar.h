@@ -40,5 +40,5 @@ protected:
 	virtual bool BuildCharacter(const cKinCharacter::tParams& params, std::shared_ptr<cKinCharacter>& out_char) const;
 	virtual void ResetCharacters();
 	virtual void UpdateCharacters(double timestep);
-	virtual bool BuildController();
+	virtual bool BuildControllers();
 };
