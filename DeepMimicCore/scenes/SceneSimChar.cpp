@@ -78,11 +78,6 @@ void cSceneSimChar::ParseArgs(const std::shared_ptr<cArgParser>& parser)
 	succ &= ParseCharTypes(parser, mCharTypes);
 	succ &= ParseCharParams(parser, mCharParams);
 	succ &= ParseCharCtrlParams(parser, mCtrlParams);
-	if (mCharParams.size() != mCtrlParams.size())
-	{
-		printf("Char and ctrl file mismatch, %zi vs %zi\n", mCharParams.size(), mCtrlParams.size());
-		assert(false);
-	}
 
 	std::string sim_mode_str = "";
 	parser->ParseInt("num_sim_substeps", mWorldParams.mNumSubsteps);

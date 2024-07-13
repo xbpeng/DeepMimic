@@ -21,22 +21,24 @@ public:
 
 	virtual void Update(double time_elapsed);
 
-	virtual const std::shared_ptr<cKinCharacter>& GetCharacter() const;
+	virtual int GetNumCharacter();
+	virtual const std::shared_ptr<cKinCharacter>& GetCharacter(int id) const;
 	virtual tVector GetCharPos() const;
 	virtual double GetTime() const;
 
 	virtual std::string GetName() const;
 
 protected:
-	cKinCharacter::tParams mCharParams;
-	std::shared_ptr<cKinCharacter> mChar;
-	cKinCtrlBuilder::tCtrlParams mCtrlParams;
+	std::vector<cKinCharacter::tParams> mCharParams;
+	std::vector<std::shared_ptr<cKinCharacter>> mChars;
+	std::vector<cKinCtrlBuilder::tCtrlParams> mCtrlParams;
+	
+	virtual void ParseCharParams(const std::shared_ptr<cArgParser>& parser, std::vector<cKinCharacter::tParams>& out_params) const;
+	virtual void ParseCharCtrlParams(const std::shared_ptr<cArgParser>& parser, std::vector<cKinCtrlBuilder::tCtrlParams>& out_params) const;
 
-	virtual void ParseCharParams(const std::shared_ptr<cArgParser>& parser, cKinCharacter::tParams& out_params) const;
-	virtual void ParseCharCtrlParams(const std::shared_ptr<cArgParser>& parser, cKinCtrlBuilder::tCtrlParams& out_params) const;
-
-	virtual bool BuildCharacter();
-	virtual void ResetCharacter();
-	virtual void UpdateCharacter(double timestep);
+	virtual bool BuildCharacters();
+	virtual bool BuildCharacter(const cKinCharacter::tParams& params, std::shared_ptr<cKinCharacter>& out_char) const;
+	virtual void ResetCharacters();
+	virtual void UpdateCharacters(double timestep);
 	virtual bool BuildController();
 };
