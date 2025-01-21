@@ -1,0 +1,72 @@
+BIN=Main
+OBJ_DIR = objs
+MKDIR = mkdir -p
+
+# CONFIGS FOR LINUX MACHINE WITH MINICONDA3 CONDA ENV
+# PLEASE ENSURE THAT YOUR MINICONDA3 DISTRIBUTION IS AT THE PATH /home/ubuntu/miniconda3 OR OTHERWISE UPDATE FOR THIS TO WORK
+
+# Reminder: these variables must be set as environment variables if the corresponding dev libs are not installed in the system: eg:
+EIGEN_DIR=$(PWD)/../eigen-3.3.7
+BULLET_INC_DIR=$(PWD)/../bullet3-2.88/src
+BULLET_LIB_DIR=$(PWD)/../bullet3-2.88/build_cmake/src
+GLEW_INC_DIR=$(PWD)/../glew-2.1.0/include
+GLEW_LIB_DIR=$(PWD)/../glew-2.1.0/lib
+FREEGLUT_INC_DIR=$(PWD)/../freeglut-3.0.0/include
+FREEGLUT_LIB_DIR=$(PWD)/../freeglut-3.0.0/lib
+
+# Python paths from your conda environment
+PYTHON_INC=/home/ubuntu/miniconda3/envs/deep_mimic_env/include/python3.11
+PYTHON_LIB=/home/ubuntu/miniconda3/envs/deep_mimic_env/lib/python3.11
+
+INC = -I./ \
+	-I$(EIGEN_DIR) \
+	-I$(BULLET_INC_DIR) \
+	-I$(GLEW_INC_DIR) \
+	-I$(FREEGLUT_INC_DIR) \
+	-I$(BULLET_INC_DIR)
+
+LIBDIRS = -L$(GLEW_LIB_DIR) -L$(FREEGLUT_LIB_DIR) -L$(BULLET_LIB_DIR)
+LIBS = -lGLEW -lGL -lGLU -lglut -lBulletDynamics -lBulletCollision -lLinearMath -lm -lstdc++
+
+CC = clang++
+CFLAGS = -std=c++11 -O3 -Wall -fPIC -stdlib=libc++
+
+SRC_DIRS = util/ \
+	util/json/ \
+	anim/ \
+	sim/ \
+	render/ \
+	render/lodepng/ \
+	scenes/ \
+	scenes/arm/ \
+	scenes/particle/ \
+	scenes/pendulum/
+
+SRC_FILES = $(BIN).cpp DeepMimicCore.cpp $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)*.cpp))
+OUT_DIRS = $(addprefix $(OBJ_DIR)/, $(SRC_DIRS))
+OBJ = $(addprefix $(OBJ_DIR)/, $(patsubst %.cpp, %.o, $(SRC_FILES)))
+
+
+default: build
+
+build: $(BIN)
+
+print:
+	$(OUT_DIRS)
+
+python: $(OUT_DIRS) $(OBJ)
+	swig -c++ -python DeepMimicCore.i
+	$(CC) -c -g $(CFLAGS) $(INC) $(LIBS) DeepMimicCore.cpp DeepMimicCore_wrap.cxx -I$(PYTHON_INC)
+	$(CC) -shared $(CFLAGS) $(OBJ) $(LIBS) DeepMimicCore_wrap.o -o _DeepMimicCore.so -L$(PYTHON_LIB) $(LIBDIRS)
+
+$(OBJ_DIR)/%.o: %.cpp
+	$(CC) -c -g $(CFLAGS) $(INC) -o $@ $<
+
+$(BIN): $(OUT_DIRS) $(OBJ)
+	$(CC) -g $(CFLAGS) $(OBJ) $(LIBS) -o $@
+
+$(OUT_DIRS):
+	$(MKDIR) $(OUT_DIRS)
+	
+clean:
+	- rm -f -r $(OUT_DIRS) $(BIN) $(OBJ) $(OBJ_DIR) DeepMimicCore_wrap.cxx _DeepMimicCore.so
