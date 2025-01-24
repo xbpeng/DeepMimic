@@ -145,10 +145,12 @@ cd glew-2.1.0
 make
 sudo make install
 
+
 # Create symlinks to the right location for DeepMimicCore to access
 sudo ln -s /usr/lib64/libGLEW.so.2.1 /usr/lib/libGLEW.so.2.1
 sudo ln -s /usr/lib64/libGLEW.so.2.1 /usr/lib/libGLEW.so
 sudo ldconfig
+
 
 make clean
 cd ../
@@ -166,8 +168,10 @@ cd ../
 # Install MPI and Python packages
 sudo apt install -y libopenmpi-dev
 pip install PyOpenGL PyOpenGL_accelerate
+
 pip install tensorflow==1.13.1
 pip install protobuf==3.20.0
+
 
 
 # Update apt and install mpi4py
