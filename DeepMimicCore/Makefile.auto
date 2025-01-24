@@ -15,8 +15,8 @@ FREEGLUT_INC_DIR=$(PWD)/../freeglut-3.0.0/include
 FREEGLUT_LIB_DIR=$(PWD)/../freeglut-3.0.0/lib
 
 # Python paths from your conda environment
-PYTHON_INC=/home/ubuntu/miniconda3/envs/deep_mimic_env/include/python3.11
-PYTHON_LIB=/home/ubuntu/miniconda3/envs/deep_mimic_env/lib/python3.11
+PYTHON_INC=/home/ubuntu/miniconda3/envs/deep_mimic_env/include/python3.7m
+PYTHON_LIB=/home/ubuntu/miniconda3/envs/deep_mimic_env/lib/python3.7
 
 INC = -I./ \
 	-I$(EIGEN_DIR) \

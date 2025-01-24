@@ -74,7 +74,7 @@ if conda info --envs | grep -q "deep_mimic_env"; then
             if [ $? -eq 0 ]; then
                 echo "Successfully deleted environment"
                 echo "Creating new environment..."
-                conda create -n deep_mimic_env python=3.11 -y
+                conda create -n deep_mimic_env python=3.7 -y
                 conda activate deep_mimic_env
             else
                 echo "Failed to delete environment. Error code: $?"
@@ -95,7 +95,7 @@ else
     echo "Creating new environment..."
     # Initialize conda
     source ~/miniconda3/etc/profile.d/conda.sh
-    conda create -n deep_mimic_env python=3.11 -y
+    conda create -n deep_mimic_env python=3.7 -y
     conda activate deep_mimic_env
 fi
 
@@ -109,8 +109,9 @@ sudo apt install -y cmake
 wget https://github.com/bulletphysics/bullet3/archive/refs/tags/2.88.zip
 unzip 2.88.zip
 cd bullet3-2.88
-./build_cmake_pybullet_double.sh
-cd build_cmake
+mkdir build_cmake && cd build_cmake
+cmake .. -DUSE_DOUBLE_PRECISION=OFF -DBUILD_SHARED_LIBS=ON
+make -j$(nproc)
 sudo make install
 cd ../../
 
@@ -143,6 +144,14 @@ unzip download
 cd glew-2.1.0
 make
 sudo make install
+
+
+# Create symlinks to the right location for DeepMimicCore to access
+sudo ln -s /usr/lib64/libGLEW.so.2.1 /usr/lib/libGLEW.so.2.1
+sudo ln -s /usr/lib64/libGLEW.so.2.1 /usr/lib/libGLEW.so
+sudo ldconfig
+
+
 make clean
 cd ../
 
@@ -159,7 +168,11 @@ cd ../
 # Install MPI and Python packages
 sudo apt install -y libopenmpi-dev
 pip install PyOpenGL PyOpenGL_accelerate
-pip install tensorflow
+
+pip install tensorflow==1.13.1
+pip install protobuf==3.20.0
+
+
 
 # Update apt and install mpi4py
 sudo apt update
