@@ -1,6 +1,6 @@
 # Intro 
 
-**This codebase is now deprecated.** Checkout [MimicKit](https://github.com/xbpeng/MimicKit/) for much more lightweight and easy-to-use implementations of our motion imitation methods.
+**This codebase is now deprecated.** Checkout [MimicKit](https://github.com/xbpeng/MimicKit/) for much faster and easy-to-use implementations of our methods.
 
 Code accompanying the following papers:
 
