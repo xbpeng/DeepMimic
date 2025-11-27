@@ -1,5 +1,7 @@
 # Intro 
 
+**This codebase is now deprecated.** Checkout [MimicKit](https://github.com/xbpeng/MimicKit/) for much more lightweight and easy-to-use implementations of our motion imitation methods.
+
 Code accompanying the following papers:
 
 "DeepMimic: Example-Guided Deep Reinforcement Learning of Physics-Based Character Skills" \
@@ -12,7 +14,6 @@ Code accompanying the following papers:
 
 The framework uses reinforcement learning to train a simulated humanoid to imitate a variety
 of motion skills from mocap data.
-
 
 ## Dependencies
 
